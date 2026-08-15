@@ -1,0 +1,362 @@
+{
+  "battlefield.png": {
+    "width": 1672,
+    "height": 941
+  },
+  "characters/dany/idle_down.png": {
+    "width": 173,
+    "height": 380
+  },
+  "characters/dany/idle_left.png": {
+    "width": 169,
+    "height": 469
+  },
+  "characters/dany/idle_right.png": {
+    "width": 173,
+    "height": 433
+  },
+  "characters/dany/idle_up.png": {
+    "width": 166,
+    "height": 469
+  },
+  "characters/dany/walk_down.png": {
+    "width": 171,
+    "height": 456
+  },
+  "characters/dany/walk_left.png": {
+    "width": 172,
+    "height": 457
+  },
+  "characters/dany/walk_right.png": {
+    "width": 159,
+    "height": 429
+  },
+  "characters/dany/walk_up.png": {
+    "width": 171,
+    "height": 452
+  },
+  "characters/marcio/idle_down.png": {
+    "width": 173,
+    "height": 403
+  },
+  "characters/marcio/idle_left.png": {
+    "width": 148,
+    "height": 398
+  },
+  "characters/marcio/idle_right.png": {
+    "width": 149,
+    "height": 349
+  },
+  "characters/marcio/idle_up.png": {
+    "width": 166,
+    "height": 345
+  },
+  "characters/marcio/walk_down.png": {
+    "width": 166,
+    "height": 346
+  },
+  "characters/marcio/walk_left.png": {
+    "width": 164,
+    "height": 341
+  },
+  "characters/marcio/walk_right.png": {
+    "width": 159,
+    "height": 381
+  },
+  "characters/marcio/walk_up.png": {
+    "width": 173,
+    "height": 419
+  },
+  "characters/marco/idle_down.png": {
+    "width": 173,
+    "height": 337
+  },
+  "characters/marco/idle_left.png": {
+    "width": 158,
+    "height": 406
+  },
+  "characters/marco/idle_right.png": {
+    "width": 173,
+    "height": 352
+  },
+  "characters/marco/idle_up.png": {
+    "width": 172,
+    "height": 395
+  },
+  "characters/marco/walk_down.png": {
+    "width": 173,
+    "height": 365
+  },
+  "characters/marco/walk_left.png": {
+    "width": 167,
+    "height": 344
+  },
+  "characters/marco/walk_right.png": {
+    "width": 172,
+    "height": 312
+  },
+  "characters/marco/walk_up.png": {
+    "width": 173,
+    "height": 392
+  },
+  "effects/explosion_large.png": {
+    "width": 182,
+    "height": 188
+  },
+  "effects/explosion_small.png": {
+    "width": 194,
+    "height": 201
+  },
+  "effects/grenade.png": {
+    "width": 112,
+    "height": 145
+  },
+  "effects/muzzle_machinegun.png": {
+    "width": 228,
+    "height": 182
+  },
+  "effects/muzzle_pistol.png": {
+    "width": 129,
+    "height": 156
+  },
+  "effects/muzzle_rifle.png": {
+    "width": 234,
+    "height": 212
+  },
+  "effects/muzzle_rocketLauncher.png": {
+    "width": 302,
+    "height": 202
+  },
+  "effects/muzzle_shotgun.png": {
+    "width": 252,
+    "height": 242
+  },
+  "effects/smoke.png": {
+    "width": 156,
+    "height": 152
+  },
+  "enemies/commander/down.png": {
+    "width": 286,
+    "height": 196
+  },
+  "enemies/commander/left.png": {
+    "width": 268,
+    "height": 196
+  },
+  "enemies/commander/right.png": {
+    "width": 248,
+    "height": 196
+  },
+  "enemies/commander/up.png": {
+    "width": 316,
+    "height": 196
+  },
+  "enemies/nocturnus/down.png": {
+    "width": 283,
+    "height": 235
+  },
+  "enemies/nocturnus/left.png": {
+    "width": 284,
+    "height": 235
+  },
+  "enemies/nocturnus/right.png": {
+    "width": 290,
+    "height": 235
+  },
+  "enemies/nocturnus/up.png": {
+    "width": 242,
+    "height": 235
+  },
+  "enemies/normal/down.png": {
+    "width": 234,
+    "height": 186
+  },
+  "enemies/normal/left.png": {
+    "width": 281,
+    "height": 186
+  },
+  "enemies/normal/right.png": {
+    "width": 240,
+    "height": 186
+  },
+  "enemies/normal/up.png": {
+    "width": 326,
+    "height": 186
+  },
+  "enemies/powerBoss/down.png": {
+    "width": 287,
+    "height": 241
+  },
+  "enemies/powerBoss/left.png": {
+    "width": 275,
+    "height": 241
+  },
+  "enemies/powerBoss/right.png": {
+    "width": 301,
+    "height": 241
+  },
+  "enemies/powerBoss/up.png": {
+    "width": 284,
+    "height": 241
+  },
+  "enemies/runner/down.png": {
+    "width": 218,
+    "height": 176
+  },
+  "enemies/runner/left.png": {
+    "width": 226,
+    "height": 176
+  },
+  "enemies/runner/right.png": {
+    "width": 260,
+    "height": 176
+  },
+  "enemies/runner/up.png": {
+    "width": 297,
+    "height": 176
+  },
+  "enemies/tank/down.png": {
+    "width": 263,
+    "height": 216
+  },
+  "enemies/tank/left.png": {
+    "width": 306,
+    "height": 216
+  },
+  "enemies/tank/right.png": {
+    "width": 245,
+    "height": 216
+  },
+  "enemies/tank/up.png": {
+    "width": 308,
+    "height": 216
+  },
+  "enemies/vampire/down.png": {
+    "width": 296,
+    "height": 206
+  },
+  "enemies/vampire/left.png": {
+    "width": 255,
+    "height": 206
+  },
+  "enemies/vampire/right.png": {
+    "width": 277,
+    "height": 206
+  },
+  "enemies/vampire/up.png": {
+    "width": 258,
+    "height": 206
+  },
+  "projectiles/machinegun.png": {
+    "width": 149,
+    "height": 46
+  },
+  "projectiles/pistol.png": {
+    "width": 135,
+    "height": 67
+  },
+  "projectiles/rifle.png": {
+    "width": 155,
+    "height": 68
+  },
+  "projectiles/rocket.png": {
+    "width": 283,
+    "height": 114
+  },
+  "projectiles/shotgun.png": {
+    "width": 48,
+    "height": 50
+  },
+  "props/airstrike_target.png": {
+    "width": 232,
+    "height": 212
+  },
+  "props/airstrike_target_alt.png": {
+    "width": 262,
+    "height": 347
+  },
+  "props/campfire.png": {
+    "width": 207,
+    "height": 260
+  },
+  "props/campfire_heal.png": {
+    "width": 242,
+    "height": 342
+  },
+  "props/chest_common_closed.png": {
+    "width": 187,
+    "height": 194
+  },
+  "props/chest_common_open.png": {
+    "width": 210,
+    "height": 246
+  },
+  "props/chest_epic_closed.png": {
+    "width": 210,
+    "height": 215
+  },
+  "props/chest_epic_open.png": {
+    "width": 220,
+    "height": 275
+  },
+  "props/chest_tactical_closed.png": {
+    "width": 226,
+    "height": 236
+  },
+  "props/chest_tactical_open.png": {
+    "width": 229,
+    "height": 292
+  },
+  "props/drone.png": {
+    "width": 232,
+    "height": 202
+  },
+  "props/drone_powered.png": {
+    "width": 292,
+    "height": 262
+  },
+  "props/explosion_support.png": {
+    "width": 317,
+    "height": 306
+  },
+  "props/medkit.png": {
+    "width": 200,
+    "height": 199
+  },
+  "props/sam.png": {
+    "width": 197,
+    "height": 296
+  },
+  "props/sam_firing.png": {
+    "width": 332,
+    "height": 332
+  },
+  "props/shield_core.png": {
+    "width": 193,
+    "height": 247
+  },
+  "props/shield_dome.png": {
+    "width": 261,
+    "height": 340
+  },
+  "weapons/machinegun.png": {
+    "width": 273,
+    "height": 168
+  },
+  "weapons/pistol.png": {
+    "width": 205,
+    "height": 147
+  },
+  "weapons/rifle.png": {
+    "width": 346,
+    "height": 202
+  },
+  "weapons/rocketLauncher.png": {
+    "width": 328,
+    "height": 195
+  },
+  "weapons/shotgun.png": {
+    "width": 334,
+    "height": 135
+  }
+}
