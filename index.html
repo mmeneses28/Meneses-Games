@@ -11,11 +11,12 @@
 <meta property="og:title" content="MENESES: ZOMBIES & VAMPIROS">
 <meta property="og:description" content="Sobrevive às hordas. Enfrenta os bosses. Joga em PC, smartphone ou tablet.">
 <meta property="og:type" content="website">
-<title>MENESES: ZOMBIES & VAMPIROS</title>
+<title>MENESES: ZOMBIES & VAMPIROS — V4.6.2 MISSIONS FIX</title>
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#0a0e11;color:#f3f5f3;font-family:Inter,Segoe UI,Arial,sans-serif}
 #app{height:100%;display:grid;grid-template-rows:auto 1fr auto}#hud{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;background:#0c1217;border-bottom:1px solid #28323a}.pill,button{border:1px solid #33414a;background:#17212a;color:#f4f6f5;padding:7px 10px;border-radius:999px;font-weight:800}button{cursor:pointer}button:disabled{opacity:.35;cursor:not-allowed}#gameWrap{position:relative;min-height:0}canvas{display:block;width:100%;height:100%;background:#798a62}.hidden{display:none!important}
 #menu,#gameOver{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,7,9,.78);backdrop-filter:blur(4px);z-index:10}.card{width:min(930px,94vw);max-height:92vh;overflow:auto;background:linear-gradient(#161f26,#0f151a);border:1px solid #35424b;border-radius:20px;padding:26px;box-shadow:0 20px 80px rgba(0,0,0,.48)}h1{font-size:clamp(30px,5vw,56px);margin:0 0 8px}h2{margin:0 0 8px}.sub{color:#aeb9b4;margin-bottom:18px}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px}.buttons>button{border-radius:14px;padding:17px;font-size:17px}.character-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.character-card{border:1px solid #36444c;background:linear-gradient(180deg,#1b2730,#131b21);border-radius:18px;padding:13px;min-height:255px;text-align:center;transition:.18s}.character-card:hover:not(:disabled){transform:translateY(-3px);border-color:#768a96}.character-card.selected{outline:3px solid #f3bf45;border-color:#f3bf45;box-shadow:0 0 25px rgba(243,191,69,.22)}.character-card img{display:block;height:155px;max-width:100%;object-fit:contain;margin:0 auto 4px;filter:drop-shadow(0 10px 11px rgba(0,0,0,.34))}.character-card b{display:block;font-size:20px;margin-bottom:4px}.character-card small{color:#aeb9b4}.two-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.slot{background:#10181e;border:1px solid #33414a;border-radius:18px;padding:16px}.slot-title{font-size:18px;font-weight:900;margin-bottom:10px}.slot .character-grid{grid-template-columns:repeat(3,1fr);gap:8px}.slot .character-card{min-height:185px;padding:8px}.slot .character-card img{height:105px}.slot .character-card b{font-size:14px}.choice{margin-top:10px;color:#f3c74f;font-weight:900}.actions{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:18px}.actions button{border-radius:13px;padding:12px 18px}.primary{background:#e5ae35;color:#17120a;border-color:#f4c45d}.vest-red{color:#ff6973}.vest-white{color:#f6f8fa}.vest-pink{color:#ff69b6}
+.mission-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.mission-card{border:1px solid #36444c;background:linear-gradient(180deg,#1b2730,#131b21);border-radius:18px;padding:16px;text-align:left;transition:.18s;cursor:pointer}.mission-card:hover{transform:translateY(-3px);border-color:#768a96}.mission-card b{display:block;font-size:22px;margin-bottom:6px}.mission-card small{display:block;color:#aeb9b4;line-height:1.45}.mission-badge{display:inline-block;margin-top:10px;padding:5px 10px;border-radius:999px;background:#24303a;color:#f3c74f;font-weight:900;font-size:12px}@media(max-width:760px){.mission-grid{grid-template-columns:1fr}}
 #toast{position:absolute;left:50%;top:18px;transform:translateX(-50%);padding:10px 14px;border-radius:12px;background:rgba(7,10,12,.92);font-weight:900;z-index:8;opacity:0;transition:.2s}#toast.show{opacity:1}footer{background:#0c1217;color:#aeb9b4;padding:8px 12px;text-align:center;font-size:12px}#runtime-status{position:absolute;left:7px;bottom:7px;font:10px monospace;color:rgba(255,255,255,.35);z-index:20}@media(max-width:760px){.buttons,.two-grid{grid-template-columns:1fr}.character-grid{grid-template-columns:1fr}.slot .character-grid{grid-template-columns:repeat(3,1fr)}#hud{font-size:11px}.pill{padding:5px 7px}.card{padding:18px}.character-card{min-height:190px}.character-card img{height:110px}}
 
 .settings-overlay{touch-action:pan-y;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,7,9,.88);backdrop-filter:blur(5px);z-index:30}
@@ -162,11 +163,13 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
   .touch-device.game-playing #hud .hud-player{max-width:155px}
 }
 
+
+.mission-choice-line{display:inline-block;margin:-2px 0 12px;padding:6px 10px;border-radius:999px;background:#202b34;color:#dfe8e3;font-weight:900}.mission-choice-line b{color:#f3c74f}
 </style>
 </head>
 <body>
 <div id="app">
-<div id="hud" class="hidden"><span class="pill hud-player" id="p1">P1</span><span class="pill hud-player" id="p2">P2</span><span class="pill hud-core">NÍVEL <b id="level">1</b></span><span class="pill hud-core">ZOMBIES <b id="remaining">0</b></span><span class="pill hud-core">KILLS <b id="kills">0</b></span><span class="pill hud-extra">🏆 SCORE <b id="score">0</b></span><span class="pill hud-extra">🔥 OVERDRIVE <b id="overdrive">—</b></span><span class="pill hud-extra">⚡ RAIVA <b id="rage">—</b></span><span class="pill hud-extra">COMBO <b id="combo">—</b></span><span class="pill hud-extra">🤝 APOIO <b id="reinforcement">—</b></span><span class="pill hud-extra">🎵 <b id="musicCue">INTRO · 0:00</b></span><span class="pill hud-extra">INTENSIDADE <b id="musicIntensity">LOW</b></span><span class="pill hud-extra">✈ <b id="air">0</b></span><button id="settingsHud">⚙ DEFINIÇÕES</button><button id="sound">🔊 SOM</button></div>
+<div id="hud" class="hidden"><span class="pill hud-player" id="p1">P1</span><span class="pill hud-player" id="p2">P2</span><span class="pill hud-core">MISSÃO <b id="mission">DESERTO</b></span><span class="pill hud-core">NÍVEL <b id="level">1</b></span><span class="pill hud-core">ZOMBIES <b id="remaining">0</b></span><span class="pill hud-core">KILLS <b id="kills">0</b></span><span class="pill hud-extra">🏆 SCORE <b id="score">0</b></span><span class="pill hud-extra">🔥 OVERDRIVE <b id="overdrive">—</b></span><span class="pill hud-extra">⚡ RAIVA <b id="rage">—</b></span><span class="pill hud-extra">COMBO <b id="combo">—</b></span><span class="pill hud-extra">🤝 APOIO <b id="reinforcement">—</b></span><span class="pill hud-extra">🎵 <b id="musicCue">INTRO · 0:00</b></span><span class="pill hud-extra">INTENSIDADE <b id="musicIntensity">LOW</b></span><span class="pill hud-extra">✈ <b id="air">0</b></span><button id="settingsHud">⚙ DEFINIÇÕES</button><button id="sound">🔊 SOM</button></div>
 <div id="gameWrap"><canvas id="game"></canvas><div id="toast"></div><div id="runtime-status">READY</div>
 <div id="touchControls" class="touch-only hidden">
   <div id="touchJoy1Wrap" class="touch-zone joy-wrap">
@@ -187,18 +190,20 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
 </div>
 <div id="rotateHint"><div class="rotate-card"><span class="rotate-icon">📱</span><h2>RODA O TELEFONE</h2><p>Para veres melhor o campo e os controlos, joga na horizontal.</p><div class="rotate-actions"><button id="rotateFullscreen" class="primary">⛶ ECRÃ INTEIRO</button><button id="rotateDismiss">JOGAR ASSIM</button></div></div></div>
 <div id="menu"><div class="card">
-  <div id="modeMenu"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub version-copy">V4.5.1 · MOBILE UX FIX · câmara e zoom mobile, HUD compacto, controlos touch, safe areas, landscape e fullscreen. Gameplay, inimigos, loot e Music Director mantidos.</div><div class="buttons"><button id="onePlayer">1 JOGADOR</button><button id="twoPlayers">2 JOGADORES</button><button id="settingsMenu" style="grid-column:1/-1">⚙ DEFINIÇÕES DE GAMEPLAY</button></div><p class="sub desktop-control-copy" style="margin-top:16px">Single Player: WASD · Two Players: P1 WASD / P2 setas · disparo automático · ESPAÇO: Airstrike</p>
+  <div id="modeMenu"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub version-copy">V4.6.2 · MISSÕES DESERTO + THRILLER · escolhe claramente entre <b>Deserto</b> e <b>Thriller</b>. Mantém mobile UX, HUD compacto, controlos touch, safe areas, landscape, fullscreen, loot e Music Director.</div><div class="buttons"><button id="onePlayer">1 JOGADOR</button><button id="twoPlayers">2 JOGADORES</button><button id="settingsMenu" style="grid-column:1/-1">⚙ DEFINIÇÕES DE GAMEPLAY</button></div><p class="sub desktop-control-copy" style="margin-top:16px">Single Player: WASD · Two Players: P1 WASD / P2 setas · disparo automático · ESPAÇO: Airstrike</p>
 <p class="sub mobile-control-copy" style="margin-top:16px">📱 TOUCH: joystick virtual · disparo automático · botão Airstrike · joga preferencialmente na horizontal. Em 2 jogadores aparecem dois joysticks.</p></div>
 
-  <div id="singleCharacterMenu" class="hidden"><h1>ESCOLHE O TEU SOBREVIVENTE</h1><div class="sub">Single Player: teclado usa W A S D; em touch aparece um joystick virtual.</div>
+  <div id="missionMenu" class="hidden"><h1>ESCOLHE A MISSÃO</h1><div class="sub">Primeiro escolhes o modo de jogo. Depois escolhes claramente em que missão queres jogar.</div><div class="mission-grid"><button id="mission_deserto" class="mission-card"><b>MISSÃO 1 · DESERTO</b><small>Mapa original de sobrevivência. Campo aberto, visibilidade alta e progressão clássica.</small><span class="mission-badge">SURVIVAL ORIGINAL</span></button><button id="mission_thriller" class="mission-card"><b>MISSÃO 2 · THRILLER</b><small>Bairro nocturno com praça central, cemitério, névoa e inimigos temáticos da missão Thriller.</small><span class="mission-badge">NOVO MAPA</span></button></div><div class="actions"><button data-back-to="modeMenu">← VOLTAR</button><span class="sub">Escolhe a missão antes de seleccionares os personagens.</span></div></div>
+
+  <div id="singleCharacterMenu" class="hidden"><h1>ESCOLHE O TEU SOBREVIVENTE</h1><div class="mission-choice-line">MISSÃO: <b id="singleMissionLabel">DESERTO</b></div><div class="sub">Single Player: teclado usa W A S D; em touch aparece um joystick virtual.</div>
     <div class="character-grid">
       <button id="single_marcio" class="character-card"><img data-preview="marcio" alt="Marcio"><b class="vest-red">MARCIO</b><small>Colete vermelho</small></button>
       <button id="single_marco" class="character-card"><img data-preview="marco" alt="Marco"><b class="vest-white">MARCO</b><small>Colete branco</small></button>
       <button id="single_dany" class="character-card"><img data-preview="dany" alt="Dany"><b class="vest-pink">DANY</b><small>Colete rosa</small></button>
-    </div><div class="actions"><button data-back-mode>← VOLTAR</button><span class="sub">Selecciona uma personagem para começar.</span></div>
+    </div><div class="actions"><button data-back-to="missionMenu">← VOLTAR</button><span class="sub">Selecciona uma personagem para começar.</span></div>
   </div>
 
-  <div id="twoCharacterMenu" class="hidden"><h1>ESCOLHA DE PERSONAGENS</h1><div class="sub">Cada jogador escolhe uma personagem diferente. Teclado: P1 WASD / P2 setas. Touch: joystick P1 à esquerda e P2 à direita.</div>
+  <div id="twoCharacterMenu" class="hidden"><h1>ESCOLHA DE PERSONAGENS</h1><div class="mission-choice-line">MISSÃO: <b id="twoMissionLabel">DESERTO</b></div><div class="sub">Cada jogador escolhe uma personagem diferente. Teclado: P1 WASD / P2 setas. Touch: joystick P1 à esquerda e P2 à direita.</div>
     <div class="two-grid">
       <div class="slot"><div class="slot-title">PLAYER 1 · W A S D / TOUCH ESQUERDO</div><div class="character-grid">
         <button id="p1_marcio" class="character-card"><img data-preview="marcio" alt="Marcio"><b>MARCIO</b></button>
@@ -210,7 +215,7 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
         <button id="p2_marco" class="character-card"><img data-preview="marco" alt="Marco"><b>MARCO</b></button>
         <button id="p2_dany" class="character-card"><img data-preview="dany" alt="Dany"><b>DANY</b></button>
       </div><div class="choice">Escolhido: <span id="p2Choice">Marco</span></div></div>
-    </div><div class="actions"><button data-back-mode>← VOLTAR</button><button id="startTwo" class="primary">COMEÇAR BATALHA</button></div>
+    </div><div class="actions"><button data-back-to="missionMenu">← VOLTAR</button><button id="startTwo" class="primary">COMEÇAR BATALHA</button></div>
   </div>
 </div></div>
 
@@ -268,6 +273,6 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
 
 <div id="gameOver" class="hidden"><div class="card"><h1 id="resultTitle">GAME OVER</h1><p class="sub" id="resultText"></p><button id="restart">JOGAR NOVAMENTE</button></div></div>
 </div>
-<footer>V4.5.1 · Mobile UX Fix · Stable Motion · Settings · Music Director · 4 direcções · Horde Steering · Attack Wind-up · Hit Reaction · Vampire Dash · Power Boss Phases · Nocturnus Teleport</footer></div>
+<footer>V4.6.2 · DESERTO + THRILLER · Mapas independentes · Inimigos temáticos Thriller · Clarões · Boss apparition · Touch & Mobile · Settings · Music Director</footer></div>
 <script src="build/game.js"></script>
 </body></html>

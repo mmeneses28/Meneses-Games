@@ -1,0 +1,20 @@
+V4.6.2 QA
+============
+
+Teste executado em Chromium real via Chrome DevTools Protocol, com assets embebidos:
+
+[OK] Menu 1 Jogador → Escolher Missão abre correctamente
+[OK] Thriller → Escolha de personagem abre correctamente
+[OK] Thriller mantém state.mission = thriller
+[OK] HUD mostra MISSÃO THRILLER imediatamente
+[OK] Renderer permanece RUNNING após 2+ segundos
+[OK] Mapa Thriller carregado
+[OK] Dany carregada
+[OK] Enemy Thriller asset carregado
+[OK] Gargalhada registada no AudioSystem
+[OK] Clarão de trovoada activa overlay
+[OK] Apparition do Thriller Boss activa antes do boss
+[OK] Final boss usa mecânica Nocturnus/victory mas visual vermelho Thriller Boss
+[OK] Final Thriller não cria Power Boss extra
+[OK] Missão Deserto mantém mapa original e estado RUNNING
+[OK] node --check build/game.js

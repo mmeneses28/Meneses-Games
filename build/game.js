@@ -473,6 +473,8 @@ var MZV;
 (function (MZV) {
     MZV.ASSET_PATHS = {
         'battlefield': 'assets/images/battlefield.png',
+        'battlefield.deserto': 'assets/images/battlefield_deserto.png',
+        'battlefield.thriller': 'assets/images/battlefield_thriller.png',
         'characters.dany.idle_down': 'assets/images/characters/dany/idle_down.png',
         'characters.dany.idle_left': 'assets/images/characters/dany/idle_left.png',
         'characters.dany.idle_right': 'assets/images/characters/dany/idle_right.png',
@@ -506,6 +508,8 @@ var MZV;
         'effects.muzzle_rocketLauncher': 'assets/images/effects/muzzle_rocketLauncher.png',
         'effects.muzzle_shotgun': 'assets/images/effects/muzzle_shotgun.png',
         'effects.smoke': 'assets/images/effects/smoke.png',
+        'effects.thriller_logo': 'assets/images/effects/thriller_logo.png',
+        'effects.thriller_apparition': 'assets/images/effects/thriller_apparition.png',
         'enemies.commander.down': 'assets/images/enemies/commander/down.png',
         'enemies.commander.left': 'assets/images/enemies/commander/left.png',
         'enemies.commander.right': 'assets/images/enemies/commander/right.png',
@@ -534,6 +538,30 @@ var MZV;
         'enemies.vampire.left': 'assets/images/enemies/vampire/left.png',
         'enemies.vampire.right': 'assets/images/enemies/vampire/right.png',
         'enemies.vampire.up': 'assets/images/enemies/vampire/up.png',
+        'enemiesThriller.commander.down': 'assets/images/enemies_thriller/commander/down.png',
+        'enemiesThriller.commander.left': 'assets/images/enemies_thriller/commander/left.png',
+        'enemiesThriller.commander.right': 'assets/images/enemies_thriller/commander/right.png',
+        'enemiesThriller.commander.up': 'assets/images/enemies_thriller/commander/up.png',
+        'enemiesThriller.normal.down': 'assets/images/enemies_thriller/normal/down.png',
+        'enemiesThriller.normal.left': 'assets/images/enemies_thriller/normal/left.png',
+        'enemiesThriller.normal.right': 'assets/images/enemies_thriller/normal/right.png',
+        'enemiesThriller.normal.up': 'assets/images/enemies_thriller/normal/up.png',
+        'enemiesThriller.powerBoss.down': 'assets/images/enemies_thriller/powerBoss/down.png',
+        'enemiesThriller.powerBoss.left': 'assets/images/enemies_thriller/powerBoss/left.png',
+        'enemiesThriller.powerBoss.right': 'assets/images/enemies_thriller/powerBoss/right.png',
+        'enemiesThriller.powerBoss.up': 'assets/images/enemies_thriller/powerBoss/up.png',
+        'enemiesThriller.runner.down': 'assets/images/enemies_thriller/runner/down.png',
+        'enemiesThriller.runner.left': 'assets/images/enemies_thriller/runner/left.png',
+        'enemiesThriller.runner.right': 'assets/images/enemies_thriller/runner/right.png',
+        'enemiesThriller.runner.up': 'assets/images/enemies_thriller/runner/up.png',
+        'enemiesThriller.tank.down': 'assets/images/enemies_thriller/tank/down.png',
+        'enemiesThriller.tank.left': 'assets/images/enemies_thriller/tank/left.png',
+        'enemiesThriller.tank.right': 'assets/images/enemies_thriller/tank/right.png',
+        'enemiesThriller.tank.up': 'assets/images/enemies_thriller/tank/up.png',
+        'enemiesThriller.vampire.down': 'assets/images/enemies_thriller/vampire/down.png',
+        'enemiesThriller.vampire.left': 'assets/images/enemies_thriller/vampire/left.png',
+        'enemiesThriller.vampire.right': 'assets/images/enemies_thriller/vampire/right.png',
+        'enemiesThriller.vampire.up': 'assets/images/enemies_thriller/vampire/up.png',
         'projectiles.machinegun': 'assets/images/projectiles/machinegun.png',
         'projectiles.pistol': 'assets/images/projectiles/pistol.png',
         'projectiles.rifle': 'assets/images/projectiles/rifle.png',
@@ -623,6 +651,11 @@ var MZV;
             this.musicCue = 'INTRO';
             this.musicIntensity = 'LOW';
             this.camera = { x: 0, y: 0 };
+            this.mission = 'deserto';
+            this.nextLightningAt = 0;
+            this.lightningAlpha = 0;
+            this.scareUntil = 0;
+            this.nextScareAt = 0;
             this.players = [];
             this.reinforcement = null;
             this.enemies = [];
@@ -635,10 +668,11 @@ var MZV;
             this.explosions = [];
             this.airstrikes = [];
         }
-        reset(mode, selectedP1, selectedP2 = 'marco') {
+        reset(mode, selectedP1, selectedP2 = 'marco', mission = 'deserto') {
             this.mode = mode;
             this.selectedP1 = selectedP1;
             this.selectedP2 = selectedP2;
+            this.mission = mission;
             this.level = 1;
             this.kills = 0;
             this.progressKills = 0;
@@ -673,6 +707,10 @@ var MZV;
             this.musicCue = 'INTRO';
             this.musicIntensity = 'LOW';
             this.camera = { x: 0, y: 0 };
+            this.nextLightningAt = MZV.rand(8, 16);
+            this.lightningAlpha = 0;
+            this.scareUntil = 0;
+            this.nextScareAt = 0;
             this.players = [];
             this.reinforcement = null;
             this.enemies = [];
@@ -896,7 +934,7 @@ var MZV;
             this.files = {
                 pistol: 'pistol.wav', machinegun: 'machinegun.wav', shotgun: 'shotgun.wav', rifle: 'rifle.wav', rocket: 'rocket_launch.wav', explosion: 'explosion.wav',
                 chest: 'chest.wav', tactical: 'tactical.wav', heal: 'heal.wav', shield: 'shield.wav', drone: 'drone.wav', sam: 'sam.wav', airstrike: 'airstrike.wav',
-                down: 'revive_alarm.wav', revive: 'revive_success.wav', boss: 'boss_roar.wav', nocturnus: 'nocturnus.wav', rage: 'rage.wav', level: 'level.wav', gameover: 'gameover.wav', victory: 'victory.wav'
+                down: 'revive_alarm.wav', revive: 'revive_success.wav', boss: 'boss_roar.wav', nocturnus: 'nocturnus.wav', rage: 'rage.wav', level: 'level.wav', gameover: 'gameover.wav', victory: 'victory.wav', laugh: 'thriller_laugh.ogg'
             };
             for (const [k, f] of Object.entries(this.files)) {
                 const pool = [];
@@ -1090,7 +1128,7 @@ var MZV;
             if (s.level === MZV.RULES.finalBossLevel) {
                 s.pendingBoss = 'nocturnus';
                 s.pendingBossSince = s.elapsed;
-                this.notify(`🧛 NÍVEL ${s.level} · LORD NOCTURNUS A APROXIMAR-SE · aguarda o próximo PEAK`);
+                this.notify(s.mission === 'thriller' ? `🕺 NÍVEL ${s.level} · THRILLER BOSS FINAL A APROXIMAR-SE · aguarda o próximo PEAK` : `🧛 NÍVEL ${s.level} · LORD NOCTURNUS A APROXIMAR-SE · aguarda o próximo PEAK`);
             }
             else if (s.level % MZV.RULES.powerBossEvery === 0) {
                 s.pendingBoss = 'powerBoss';
@@ -1117,7 +1155,7 @@ var MZV;
             const s = this.state;
             if (cue.type === 'BUILD') {
                 if (s.pendingBoss)
-                    this.notify(`⚠ ${s.pendingBoss === 'nocturnus' ? 'LORD NOCTURNUS' : 'POWER BOSS'} · aproximação detectada`);
+                    this.notify(`⚠ ${s.mission === 'thriller' ? 'THRILLER BOSS' : (s.pendingBoss === 'nocturnus' ? 'LORD NOCTURNUS' : 'POWER BOSS')} · aproximação detectada`);
                 else if (s.pendingHordeCount > 0)
                     this.notify(`⚠ HORDA A APROXIMAR-SE · ${s.pendingHordeCount} inimigos`);
                 return;
@@ -1150,12 +1188,17 @@ var MZV;
             s.pendingBoss = null;
             s.pendingBossSince = 0;
             if (type === 'nocturnus') {
-                this.spawn('powerBoss');
+                if (s.mission !== 'thriller') this.spawn('powerBoss');
                 const z = new MZV.Enemy('nocturnus', MZV.WORLD.width / 2, 220, s.level, true, s.mode === 'single');
                 s.enemies.push(z);
                 s.airstrikeCharges += 2;
-                this.audio.play('nocturnus', .72);
-                this.notify('🧛 LORD NOCTURNUS · ENTRADA SINCRONIZADA NO PEAK');
+                if (s.mission === 'thriller') {
+                    this.audio.play('laugh', .78); this.audio.play('boss', .64);
+                    this.notify('🕺 THRILLER BOSS · BATALHA FINAL · ENTRADA NO PEAK');
+                } else {
+                    this.audio.play('nocturnus', .72);
+                    this.notify('🧛 LORD NOCTURNUS · ENTRADA SINCRONIZADA NO PEAK');
+                }
             }
             else {
                 this.spawn('powerBoss');
@@ -2369,7 +2412,8 @@ var MZV;
             this.zoom = 1;
         }
         resize() {
-            const dpr = Math.min(2, devicePixelRatio || 1), r = this.canvas.getBoundingClientRect();
+            const dprCap = this.mobileLayout() ? 1.35 : 2;
+            const dpr = Math.min(dprCap, devicePixelRatio || 1), r = this.canvas.getBoundingClientRect();
             const width = Math.max(1, Math.round(r.width)), height = Math.max(1, Math.round(r.height));
             this.canvas.width = Math.floor(width * dpr);
             this.canvas.height = Math.floor(height * dpr);
@@ -2381,7 +2425,7 @@ var MZV;
             if (!this.mobileLayout())
                 return { zoom: 1, focusX: w / 2, focusY: h / 2 };
             const landscape = w >= h;
-            const zoom = landscape ? 1.22 : 1.08;
+            const zoom = 1;
             const safeTop = landscape ? 42 : 48;
             const safeBottom = landscape ? 104 : 126;
             const usableBottom = Math.max(safeTop + 80, h - safeBottom);
@@ -2416,8 +2460,15 @@ var MZV;
             this.drawMiniMap();
             this.drawRageHud();
             this.drawRevive();
+            this.drawThrillerOverlay();
         }
         asset(key) { const i = this.assets.get(key); return i && i.complete && i.naturalWidth > 0 ? i : null; }
+        visibleOnMobile(x, y, padding = 80) {
+            if (!this.mobileLayout())
+                return true;
+            const cam = this.s.camera, width = this.canvas.clientWidth / this.zoom, height = this.canvas.clientHeight / this.zoom;
+            return x + padding >= cam.x && x - padding <= cam.x + width && y + padding >= cam.y && y - padding <= cam.y + height;
+        }
         drawCentered(key, x, y, height, alpha = 1) {
             const c = this.ctx, img = this.asset(key);
             if (!img)
@@ -2446,7 +2497,7 @@ var MZV;
             const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, cam = this.s.camera, zoom = this.zoom;
             c.fillStyle = '#89956d';
             c.fillRect(0, 0, w, h);
-            const bg = this.asset('battlefield');
+            const bg = this.asset(`battlefield.${this.s.mission}`) || this.asset('battlefield');
             if (bg) {
                 c.save();
                 c.globalAlpha = .78;
@@ -2652,7 +2703,7 @@ var MZV;
             return true;
         }
         drawEnemyShape(z) {
-            const c = this.ctx, dir = this.enemyDirection(z), key = `enemies.${z.type}.${dir}`, g = this.enemyGait(z);
+            const c = this.ctx, dir = this.enemyDirection(z), key = this.s.mission === 'thriller' ? `enemiesThriller.${z.type === 'nocturnus' ? 'powerBoss' : z.type}.${dir}` : `enemies.${z.type}.${dir}`, g = this.enemyGait(z);
             const moving = Math.abs(z.vx) + Math.abs(z.vy) > .05 && z.motionState === 'move';
             const phase = this.s.elapsed * g.freq + z.motionSeed;
             let bob = moving ? Math.sin(phase) * g.amp : 0;
@@ -2738,7 +2789,7 @@ var MZV;
         drawEnemies() {
             const c = this.ctx;
             for (const z of this.s.enemies) {
-                if (!z.alive)
+                if (!z.alive || !this.visibleOnMobile(z.x, z.y, 180))
                     continue;
                 this.drawEnemyShape(z);
                 if (z.type === 'powerBoss' || z.type === 'nocturnus') {
@@ -2750,7 +2801,7 @@ var MZV;
                     c.fillStyle = '#fff';
                     c.font = '900 12px Segoe UI';
                     c.textAlign = 'center';
-                    c.fillText(z.type === 'nocturnus' ? `LORD NOCTURNUS · FASE ${z.phase}` : `POWER BOSS · ${z.lives}/7 · FASE ${z.phase}`, z.x, z.y - this.enemyHeight(z) / 2 - 28);
+                    c.fillText(z.type === 'nocturnus' ? `${this.s.mission === 'thriller' ? 'THRILLER BOSS' : 'LORD NOCTURNUS'} · FASE ${z.phase}` : `${this.s.mission === 'thriller' ? 'THRILLER BOSS' : 'POWER BOSS'} · ${z.lives}/7 · FASE ${z.phase}`, z.x, z.y - this.enemyHeight(z) / 2 - 28);
                 }
             }
         }
@@ -2758,6 +2809,8 @@ var MZV;
         drawProjectiles() {
             const c = this.ctx;
             for (const b of this.s.projectiles) {
+                if (!this.visibleOnMobile(b.x, b.y, 40))
+                    continue;
                 const a = Math.atan2(b.vy, b.vx), key = `projectiles.${b.kind}`;
                 if (!this.drawRotated(key, b.x, b.y, a, this.projectileHeight(b.kind), -6)) {
                     c.save();
@@ -2772,6 +2825,8 @@ var MZV;
         drawExplosions() {
             const c = this.ctx;
             for (const e of this.s.explosions) {
+                if (!this.visibleOnMobile(e.x, e.y, Math.max(120, e.maxRadius)))
+                    continue;
                 const p = 1 - e.life / e.maxLife, r = e.maxRadius * p, key = r < 70 ? 'effects.explosion_small' : 'effects.explosion_large';
                 const img = this.asset(key);
                 if (img) {
@@ -2789,6 +2844,8 @@ var MZV;
                 }
             }
             for (const a of this.s.airstrikes) {
+                if (!this.visibleOnMobile(a.x, a.y, 160))
+                    continue;
                 if (!this.drawCentered('props.airstrike_target', a.x, a.y, 150, .72)) {
                     const p = .5 + .5 * Math.sin(this.s.elapsed * 10);
                     c.strokeStyle = `rgba(255,65,45,${.4 + .4 * p})`;
@@ -2811,6 +2868,8 @@ var MZV;
         drawChests() {
             const c = this.ctx;
             for (const b of this.s.chests) {
+                if (!this.visibleOnMobile(b.x, b.y, 100))
+                    continue;
                 const glow = b.rarity === 'epic' ? 'rgba(190,95,255,.38)' : b.rarity === 'rare' ? 'rgba(70,175,255,.28)' : 'rgba(255,215,110,.14)';
                 c.fillStyle = glow;
                 c.beginPath();
@@ -2835,6 +2894,8 @@ var MZV;
         drawPickups() {
             const c = this.ctx;
             for (const p of this.s.pickups) {
+                if (!this.visibleOnMobile(p.x, p.y, 100))
+                    continue;
                 if (p.type === 'campfire') {
                     if (!this.drawCentered('props.campfire_heal', p.x, p.y, 92, .9))
                         this.drawCentered('props.campfire', p.x, p.y, 78);
@@ -2858,6 +2919,8 @@ var MZV;
         drawSams() {
             const c = this.ctx;
             for (const t of this.s.sams) {
+                if (!this.visibleOnMobile(t.x, t.y, 120))
+                    continue;
                 const key = this.s.elapsed + 0.15 >= t.nextShot ? 'props.sam_firing' : 'props.sam';
                 if (!this.drawCentered(key, t.x, t.y, 92)) {
                     c.save();
@@ -2873,6 +2936,8 @@ var MZV;
         drawHelicopters() {
             const c = this.ctx;
             for (const h of this.s.helicopters) {
+                if (!this.visibleOnMobile(h.x, h.y, 180))
+                    continue;
                 c.save();
                 c.translate(h.x, h.y);
                 // sombra
@@ -2936,9 +3001,11 @@ var MZV;
             }
         }
         drawMiniMap() {
-            if (this.mobileLayout())
-                return;
-            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, mw = 170, mh = 112, x = w - mw - 14, y = h - mh - 14, sx = mw / MZV.WORLD.width, sy = mh / MZV.WORLD.height;
+            const mobile = this.mobileLayout();
+            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+            const mw = mobile ? 104 : 170, mh = mobile ? 68 : 112;
+            const x = mobile ? Math.max(8, w - mw - 62) : w - mw - 14;
+            const y = mobile ? 8 : h - mh - 14, sx = mw / MZV.WORLD.width, sy = mh / MZV.WORLD.height;
             c.fillStyle = 'rgba(10,14,16,.78)';
             c.fillRect(x, y, mw, mh);
             c.strokeStyle = 'rgba(255,255,255,.22)';
@@ -2998,6 +3065,26 @@ var MZV;
             c.fillText(`${rr ? rr.name.toUpperCase() + ' REINFORCEMENT · ' : ''}SCORE ×2 · COMBO ×${Math.max(1, this.s.combo)} · RAGE KILLS ${this.s.rageKills}`, w / 2, 87);
             c.restore();
         }
+        drawThrillerOverlay() {
+            if (this.s.mission !== 'thriller') return;
+            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+            if (this.s.scareUntil > this.s.elapsed) {
+                const total = 2.4, remain = this.s.scareUntil - this.s.elapsed, p = MZV.clamp(1 - remain / total, 0, 1), alpha = Math.sin(p * Math.PI) * .92;
+                c.save();
+                c.fillStyle = `rgba(8,6,18,${.10 + .15 * alpha})`; c.fillRect(0,0,w,h);
+                const img = this.asset('effects.thriller_apparition');
+                if (img) { const hh = Math.min(h * .58, 330), ww = hh * (img.naturalWidth / img.naturalHeight); c.globalAlpha = alpha; c.drawImage(img, w - ww - 24, h * .12, ww, hh); }
+                c.textAlign='center'; c.font=`1000 ${Math.round(28 + 9*alpha)}px Segoe UI`; c.fillStyle=`rgba(255,72,96,${.55+.38*alpha})`; c.shadowColor='rgba(0,0,0,.9)'; c.shadowBlur=18; c.fillText('THRILLER',w*.5,44);
+                c.restore();
+            }
+            if (this.s.lightningAlpha > 0) {
+                const a=this.s.lightningAlpha; c.save();
+                c.fillStyle=`rgba(224,232,255,${a})`; c.fillRect(0,0,w,h);
+                c.strokeStyle=`rgba(255,255,255,${Math.min(1,a*1.5)})`; c.lineWidth=2.5; c.beginPath();
+                let x=w*.18; c.moveTo(x,0); c.lineTo(x+18,h*.13); c.lineTo(x-7,h*.24); c.lineTo(x+21,h*.37); c.stroke();
+                c.restore();
+            }
+        }
         drawRevive() {
             if (!this.revive.active)
                 return;
@@ -3043,6 +3130,8 @@ var MZV;
             this.autoTest = false;
             this.pendingP1 = 'marcio';
             this.pendingP2 = 'marco';
+            this.pendingMode = 'single';
+            this.pendingMission = 'deserto';
             this.settingsWasRunning = false;
             MZV.SETTINGS.load();
             this.combat.rageDamage = (r, d) => this.rage.damage(r, d);
@@ -3200,7 +3289,7 @@ var MZV;
             this.$('settingsStatus').textContent = `GUARDADO · caixas ${MZV.SETTINGS.current.chestOpenSeconds}s · Rage a cada ${MZV.SETTINGS.current.rageEvery} níveis`;
             this.notify('⚙ DEFINIÇÕES GUARDADAS');
         }
-        showPanel(id) { for (const x of ['modeMenu', 'singleCharacterMenu', 'twoCharacterMenu'])
+        showPanel(id) { for (const x of ['modeMenu', 'missionMenu', 'singleCharacterMenu', 'twoCharacterMenu'])
             this.$(x).classList.add('hidden'); this.$(id).classList.remove('hidden'); }
         updateTwoSelection() {
             const ids = ['marcio', 'marco', 'dany'];
@@ -3222,10 +3311,12 @@ var MZV;
                 this.audio.startMenuMusic();
             } };
             addEventListener('pointerdown', startMenuAudio);
-            this.$('onePlayer').addEventListener('click', () => { startMenuAudio(); this.showPanel('singleCharacterMenu'); });
-            this.$('twoPlayers').addEventListener('click', () => { startMenuAudio(); this.pendingP1 = 'marcio'; this.pendingP2 = 'marco'; this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); });
+            this.$('onePlayer').addEventListener('click', () => { startMenuAudio(); this.pendingMode = 'single'; this.showPanel('missionMenu'); });
+            this.$('twoPlayers').addEventListener('click', () => { startMenuAudio(); this.pendingMode = 'two'; this.pendingP1 = 'marcio'; this.pendingP2 = 'marco'; this.updateTwoSelection(); this.showPanel('missionMenu'); });
+            this.$('mission_deserto').addEventListener('click', () => { this.pendingMission = 'deserto'; this.$('singleMissionLabel').textContent='DESERTO'; this.$('twoMissionLabel').textContent='DESERTO'; if (this.pendingMode === 'single') this.showPanel('singleCharacterMenu'); else { this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); } });
+            this.$('mission_thriller').addEventListener('click', () => { this.pendingMission = 'thriller'; this.$('singleMissionLabel').textContent='THRILLER'; this.$('twoMissionLabel').textContent='THRILLER'; if (this.pendingMode === 'single') this.showPanel('singleCharacterMenu'); else { this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); } });
             for (const id of ['marcio', 'marco', 'dany']) {
-                this.$(`single_${id}`).addEventListener('click', () => this.start('single', id));
+                this.$(`single_${id}`).addEventListener('click', () => this.start('single', id, 'marco', this.pendingMission));
                 this.$(`p1_${id}`).addEventListener('click', () => { if (this.pendingP2 !== id) {
                     this.pendingP1 = id;
                     this.updateTwoSelection();
@@ -3235,9 +3326,9 @@ var MZV;
                     this.updateTwoSelection();
                 } });
             }
-            this.$('startTwo').addEventListener('click', () => this.start('two', this.pendingP1, this.pendingP2));
-            document.querySelectorAll('[data-back-mode]').forEach(el => el.addEventListener('click', () => this.showPanel('modeMenu')));
-            this.$('restart').addEventListener('click', () => this.start(this.state.mode, this.state.selectedP1, this.state.selectedP2));
+            this.$('startTwo').addEventListener('click', () => this.start('two', this.pendingP1, this.pendingP2, this.pendingMission));
+            document.querySelectorAll('[data-back-to]').forEach(el => el.addEventListener('click', () => this.showPanel(el.getAttribute('data-back-to') || 'modeMenu')));
+            this.$('restart').addEventListener('click', () => this.start(this.state.mode, this.state.selectedP1, this.state.selectedP2, this.state.mission));
             this.$('sound').addEventListener('click', () => { this.audio.setEnabled(!this.audio.enabled); this.$('sound').textContent = this.audio.enabled ? '🔊 SOM' : '🔇 SOM'; });
             this.$('settingsMenu').addEventListener('click', () => this.openSettings());
             this.$('settingsHud').addEventListener('click', () => this.openSettings());
@@ -3264,16 +3355,16 @@ var MZV;
             });
             if (location.search.includes('autotest=1')) {
                 this.autoTest = true;
-                setTimeout(() => this.start('two', 'dany', 'marco'), 50);
+                setTimeout(() => this.start('two', 'dany', 'marco', 'thriller'), 50);
                 setTimeout(() => { const st = document.getElementById('runtime-status'); if (st)
                     st.textContent = this.state.running ? 'AUTOTEST_OK' : 'AUTOTEST_FAIL'; }, 1800);
             }
         }
         startLevel() { this.horde.startLevel(); this.rage.armForLevel(); }
-        start(mode, p1, p2 = 'marco') {
+        start(mode, p1, p2 = 'marco', mission = 'deserto') {
             if (mode === 'two' && p1 === p2)
                 throw new Error('Os dois jogadores não podem escolher a mesma personagem.');
-            this.state.reset(mode, p1, p2);
+            this.state.reset(mode, p1, p2, mission);
             const midX = MZV.WORLD.width / 2, midY = MZV.WORLD.height / 2;
             if (mode === 'single')
                 this.state.players.push(new MZV.Player(MZV.CHARACTERS[p1], midX, midY, MZV.CONTROLS.WASD, 1));
@@ -3296,7 +3387,9 @@ var MZV;
             if (this.touch.enabled)
                 void this.requestFullscreen(false);
             this.music.start();
+            this.audio.play('laugh', .70);
             this.startLevel();
+            this.updateHud();
             this.last = performance.now();
             this.$('runtime-status').textContent = 'RUNNING';
         }
@@ -3324,6 +3417,7 @@ var MZV;
             const s = this.state;
             s.elapsed += dt;
             this.music.update();
+            this.updateThrillerAtmosphere(dt);
             for (const p of s.players)
                 this.movement.updatePlayer(p, dt);
             this.rage.update(dt);
@@ -3360,6 +3454,27 @@ var MZV;
             }
             this.updateHud();
         }
+        updateThrillerAtmosphere(dt) {
+            const s = this.state;
+            if (s.mission !== 'thriller') { s.lightningAlpha = 0; s.scareUntil = 0; return; }
+            if (s.lightningAlpha > 0) s.lightningAlpha = Math.max(0, s.lightningAlpha - dt * 2.25);
+            if (s.elapsed >= s.nextLightningAt) {
+                s.lightningAlpha = .30 + Math.random() * .34;
+                const bossPending = s.pendingBoss === 'powerBoss' || s.pendingBoss === 'nocturnus';
+                s.nextLightningAt = s.elapsed + MZV.rand(bossPending ? 5.5 : 10.5, bossPending ? 10 : 23);
+            }
+            if (s.pendingBoss === 'powerBoss' || s.pendingBoss === 'nocturnus') {
+                if (s.nextScareAt <= 0) s.nextScareAt = s.elapsed + 2.2;
+                if (s.elapsed >= s.nextScareAt) {
+                    s.scareUntil = s.elapsed + 2.4;
+                    s.nextScareAt = s.elapsed + MZV.rand(7.5, 12.5);
+                    this.audio.play('laugh', .72);
+                    this.notify('👻 THRILLER BOSS A OBSERVAR...');
+                }
+            } else if (s.scareUntil > 0 && s.elapsed >= s.scareUntil) {
+                s.scareUntil = 0;
+            }
+        }
         showGameOver(victory) {
             document.documentElement.classList.remove('game-playing');
             document.documentElement.classList.remove('single-player');
@@ -3371,6 +3486,7 @@ var MZV;
         }
         updateHud() {
             const s = this.state, p1 = s.players[0], p2 = s.players[1];
+            const missionHud = this.$('mission'); if (missionHud) missionHud.textContent = s.mission === 'thriller' ? 'THRILLER' : 'DESERTO';
             this.$('level').textContent = String(s.level);
             this.$('kills').textContent = String(s.kills);
             this.$('score').textContent = s.score.toLocaleString();
