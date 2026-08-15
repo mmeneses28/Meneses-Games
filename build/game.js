@@ -767,7 +767,8 @@ var MZV;
         }
         detectTouch() {
             try {
-                return navigator.maxTouchPoints > 0 ||
+                return new URLSearchParams(location.search).get('touch') === '1' ||
+                    navigator.maxTouchPoints > 0 ||
                     ('ontouchstart' in window) ||
                     (typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches);
             }
@@ -2365,13 +2366,34 @@ var MZV;
             if (!c)
                 throw new Error('Canvas 2D indisponível');
             this.ctx = c;
+            this.zoom = 1;
         }
-        resize() { const dpr = Math.min(2, devicePixelRatio || 1), r = this.canvas.getBoundingClientRect(); this.canvas.width = Math.floor(r.width * dpr); this.canvas.height = Math.floor(r.height * dpr); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+        resize() {
+            const dpr = Math.min(2, devicePixelRatio || 1), r = this.canvas.getBoundingClientRect();
+            const width = Math.max(1, Math.round(r.width)), height = Math.max(1, Math.round(r.height));
+            this.canvas.width = Math.floor(width * dpr);
+            this.canvas.height = Math.floor(height * dpr);
+            this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+        mobileLayout() { return document.documentElement.classList.contains('touch-device'); }
+        cameraProfile() {
+            const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+            if (!this.mobileLayout())
+                return { zoom: 1, focusX: w / 2, focusY: h / 2 };
+            const landscape = w >= h;
+            const zoom = landscape ? 1.22 : 1.08;
+            const safeTop = landscape ? 42 : 48;
+            const safeBottom = landscape ? 104 : 126;
+            const usableBottom = Math.max(safeTop + 80, h - safeBottom);
+            return { zoom, focusX: w / 2, focusY: (safeTop + usableBottom) / 2 };
+        }
         camera() {
             const alive = this.s.players.filter(p => p.alive && !p.out);
             const cx = alive.reduce((a, p) => a + p.x, 0) / (alive.length || 1), cy = alive.reduce((a, p) => a + p.y, 0) / (alive.length || 1);
-            this.s.camera.x = MZV.clamp(cx - this.canvas.clientWidth / 2, 0, Math.max(0, MZV.WORLD.width - this.canvas.clientWidth));
-            this.s.camera.y = MZV.clamp(cy - this.canvas.clientHeight / 2, 0, Math.max(0, MZV.WORLD.height - this.canvas.clientHeight));
+            const profile = this.cameraProfile(), visibleWidth = this.canvas.clientWidth / profile.zoom, visibleHeight = this.canvas.clientHeight / profile.zoom;
+            this.zoom = profile.zoom;
+            this.s.camera.x = MZV.clamp(cx - profile.focusX / profile.zoom, 0, Math.max(0, MZV.WORLD.width - visibleWidth));
+            this.s.camera.y = MZV.clamp(cy - profile.focusY / profile.zoom, 0, Math.max(0, MZV.WORLD.height - visibleHeight));
         }
         draw() {
             this.camera();
@@ -2379,6 +2401,7 @@ var MZV;
             c.clearRect(0, 0, w, h);
             this.drawBackground();
             c.save();
+            c.scale(this.zoom, this.zoom);
             c.translate(-this.s.camera.x, -this.s.camera.y);
             this.drawPickups();
             this.drawChests();
@@ -2420,14 +2443,14 @@ var MZV;
             return true;
         }
         drawBackground() {
-            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, cam = this.s.camera;
+            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, cam = this.s.camera, zoom = this.zoom;
             c.fillStyle = '#89956d';
             c.fillRect(0, 0, w, h);
             const bg = this.asset('battlefield');
             if (bg) {
                 c.save();
                 c.globalAlpha = .78;
-                c.drawImage(bg, -cam.x, -cam.y, MZV.WORLD.width, MZV.WORLD.height);
+                c.drawImage(bg, -cam.x * zoom, -cam.y * zoom, MZV.WORLD.width * zoom, MZV.WORLD.height * zoom);
                 c.fillStyle = 'rgba(255,246,218,.10)';
                 c.fillRect(0, 0, w, h);
                 c.restore();
@@ -2913,6 +2936,8 @@ var MZV;
             }
         }
         drawMiniMap() {
+            if (this.mobileLayout())
+                return;
             const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, mw = 170, mh = 112, x = w - mw - 14, y = h - mh - 14, sx = mw / MZV.WORLD.width, sy = mh / MZV.WORLD.height;
             c.fillStyle = 'rgba(10,14,16,.78)';
             c.fillRect(x, y, mw, mh);
@@ -3023,9 +3048,16 @@ var MZV;
             this.combat.rageDamage = (r, d) => this.rage.damage(r, d);
             this.renderer = new MZV.Renderer(canvas, this.state, this.revive);
             this.renderer.resize();
-            addEventListener('resize', () => this.renderer.resize());
             this.touch = new MZV.TouchControls(this.input, () => { if (this.state.running)
                 this.combat.callAirstrike(); }, () => this.openSettings(), () => this.requestFullscreen());
+            this.viewportTimer = 0;
+            this.handleViewportChange = () => this.syncViewport();
+            addEventListener('resize', this.handleViewportChange);
+            addEventListener('orientationchange', this.handleViewportChange);
+            if (window.visualViewport)
+                window.visualViewport.addEventListener('resize', this.handleViewportChange);
+            document.addEventListener('fullscreenchange', () => { this.updateFullscreenUi(); this.syncViewport(); });
+            this.syncViewport();
             this.bindUi();
             this.bindCharacterPreviews();
             this.buildSettingsWeaponOrder();
@@ -3096,10 +3128,41 @@ var MZV;
                 }
             };
         }
-        async requestFullscreen() {
+        syncViewport() {
+            const viewport = window.visualViewport;
+            const width = Math.round(viewport?.width || innerWidth), height = Math.round(viewport?.height || innerHeight);
+            document.documentElement.style.setProperty('--app-width', `${width}px`);
+            document.documentElement.style.setProperty('--app-height', `${height}px`);
+            requestAnimationFrame(() => this.renderer.resize());
+            clearTimeout(this.viewportTimer);
+            this.viewportTimer = setTimeout(() => this.renderer.resize(), 220);
+        }
+        updateFullscreenUi() {
+            const button = this.$('touchFullscreen');
+            if (!button)
+                return;
+            button.innerHTML = document.fullscreenElement ? '↙<small>SAIR</small>' : '⛶<small>FULL</small>';
+            button.setAttribute('aria-label', document.fullscreenElement ? 'Sair do ecrã inteiro' : 'Ecrã inteiro');
+        }
+        async requestFullscreen(toggle = true) {
             try {
-                if (!document.fullscreenElement && document.documentElement.requestFullscreen)
-                    await document.documentElement.requestFullscreen();
+                if (toggle && document.fullscreenElement && document.exitFullscreen) {
+                    await document.exitFullscreen();
+                    return;
+                }
+                if (!document.fullscreenElement) {
+                    const request = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen;
+                    if (!request) {
+                        this.notify('No iPhone: Partilhar → Adicionar ao ecrã principal');
+                        return;
+                    }
+                    try {
+                        await request.call(document.documentElement, { navigationUI: 'hide' });
+                    }
+                    catch {
+                        await request.call(document.documentElement);
+                    }
+                }
             }
             catch { }
             try {
@@ -3108,6 +3171,8 @@ var MZV;
                     await orientation.lock('landscape');
             }
             catch { }
+            this.updateFullscreenUi();
+            this.syncViewport();
         }
         openSettings() {
             this.settingsWasRunning = this.state.running;
@@ -3179,6 +3244,8 @@ var MZV;
             this.$('settingsCancel').addEventListener('click', () => this.closeSettings());
             this.$('settingsSave').addEventListener('click', () => this.saveSettings());
             this.$('settingsDefaults').addEventListener('click', () => { MZV.SETTINGS.reset(); this.syncSettingsForm(); this.$('settingsStatus').textContent = 'STANDARD RESTAURADO'; });
+            this.$('rotateFullscreen').addEventListener('click', () => this.requestFullscreen(false));
+            this.$('rotateDismiss').addEventListener('click', () => this.$('rotateHint').classList.add('dismissed'));
             addEventListener('keydown', e => {
                 if (e.code === 'Escape' && !e.repeat) {
                     if (!this.$('settingsOverlay').classList.contains('hidden'))
@@ -3222,7 +3289,12 @@ var MZV;
             this.$('gameOver').classList.add('hidden');
             this.$('hud').classList.remove('hidden');
             document.documentElement.classList.add('game-playing');
+            document.documentElement.classList.toggle('single-player', mode === 'single');
+            this.$('rotateHint').classList.remove('dismissed');
             this.touch.setMode(mode);
+            this.syncViewport();
+            if (this.touch.enabled)
+                void this.requestFullscreen(false);
             this.music.start();
             this.startLevel();
             this.last = performance.now();
@@ -3290,6 +3362,7 @@ var MZV;
         }
         showGameOver(victory) {
             document.documentElement.classList.remove('game-playing');
+            document.documentElement.classList.remove('single-player');
             this.touch.hide();
             const box = this.$('gameOver');
             box.classList.remove('hidden');
@@ -3311,6 +3384,9 @@ var MZV;
             this.$('musicIntensity').textContent = s.musicIntensity;
             this.$('p1').textContent = p1 ? `P1 · ${p1.name} ❤️ ${Math.ceil(p1.hp)} · ${p1.weapon.name}` : '—';
             this.$('p2').textContent = p2 ? `P2 · ${p2.name} ❤️ ${Math.ceil(p2.hp)} · ${p2.weapon.name}` : 'SINGLE PLAYER';
+            const airLabel = this.$('touchAirstrike')?.querySelector('small');
+            if (airLabel)
+                airLabel.textContent = `AIR · ${s.airstrikeCharges}`;
         }
     }
     MZV.GameApp = GameApp;

@@ -80,11 +80,93 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
   .touch-device.game-playing #rotateHint:not(.dismissed){display:flex}
 }
 
+/* V4.5.1 — Mobile UX profile. Desktop rules above remain the default. */
+.touch-device{--mobile-edge:clamp(10px,2.2vw,18px);--mobile-top:calc(env(safe-area-inset-top) + 8px);--mobile-bottom:calc(env(safe-area-inset-bottom) + 8px)}
+.touch-device #app{width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+.touch-device.game-playing #gameWrap{position:fixed;inset:0;width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+.touch-device #menu,.touch-device #gameOver,.touch-device .settings-overlay{position:fixed;inset:0;padding:var(--mobile-top) calc(env(safe-area-inset-right) + var(--mobile-edge)) var(--mobile-bottom) calc(env(safe-area-inset-left) + var(--mobile-edge))}
+.touch-device .card,.touch-device .settings-card{max-width:100%;max-height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.touch-device.game-playing #hud{position:fixed;left:calc(env(safe-area-inset-left) + 8px);right:auto;top:var(--mobile-top);z-index:9;display:flex;flex-wrap:nowrap;max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 128px);overflow:hidden;padding:0;background:none;border:0;gap:5px;pointer-events:none}
+.touch-device.game-playing #hud .pill{flex:0 0 auto;min-height:28px;padding:5px 8px;border-color:rgba(255,255,255,.18);background:rgba(7,12,15,.76);box-shadow:0 2px 8px rgba(0,0,0,.24);font-size:10px;white-space:nowrap}
+.touch-device.game-playing #hud .hud-player{max-width:210px;overflow:hidden;text-overflow:ellipsis}
+.touch-device.game-playing #hud .hud-extra,.touch-device.game-playing #settingsHud,.touch-device.game-playing #sound{display:none}
+.touch-device.game-playing.single-player #p2{display:none}
+.touch-device #toast{position:fixed;top:calc(var(--mobile-top) + 36px);max-width:min(76vw,520px);padding:7px 11px;text-align:center;font-size:11px;white-space:normal}
+.virtual-joystick{width:86px;height:86px;border-width:1px;background:rgba(10,18,23,.26);box-shadow:inset 0 0 20px rgba(0,0,0,.28),0 4px 12px rgba(0,0,0,.18)}
+.joystick-knob{width:38px;height:38px;margin:-19px 0 0 -19px;border-width:2px}
+.joy-label{font-size:9px}
+.touch-zone{bottom:var(--mobile-bottom)}
+#touchJoy1Wrap{left:calc(env(safe-area-inset-left) + var(--mobile-edge))}
+#touchJoy2Wrap{right:calc(env(safe-area-inset-right) + var(--mobile-edge))}
+.touch-actions{right:calc(env(safe-area-inset-right) + var(--mobile-edge));bottom:var(--mobile-bottom);gap:7px}
+.two-player-touch .touch-actions{right:50%;bottom:var(--mobile-bottom)}
+.touch-action{width:56px;height:56px;min-height:56px;padding:0;border-width:1px;font-size:20px;background:rgba(15,25,31,.68)}
+.touch-action small{font-size:7px;letter-spacing:.03em}
+#touchSettings,#touchFullscreen{width:42px;height:42px;min-height:42px;font-size:16px}
+.touch-top-actions{position:fixed;right:calc(env(safe-area-inset-right) + 8px);top:var(--mobile-top);gap:6px}
+#rotateHint{position:fixed;padding:calc(env(safe-area-inset-top) + 22px) calc(env(safe-area-inset-right) + 22px) calc(env(safe-area-inset-bottom) + 22px) calc(env(safe-area-inset-left) + 22px);pointer-events:auto}
+#rotateHint .rotate-card{padding:18px;border:1px solid #35424b;border-radius:18px;background:#10181e;box-shadow:0 18px 70px rgba(0,0,0,.5)}
+#rotateHint .rotate-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#rotateHint .rotate-actions button{border-radius:12px}
+.touch-device .version-copy{font-size:12px;line-height:1.35}
+.touch-device .settings-card h1{font-size:clamp(22px,5vw,34px)}
+
+@media (orientation:landscape) and (max-height:560px){
+  .touch-device .card{width:min(900px,100%);padding:12px 14px;border-radius:15px}
+  .touch-device .card h1{font-size:clamp(22px,4.5vw,34px);line-height:1.05}
+  .touch-device .sub{margin-bottom:9px;font-size:11px;line-height:1.3}
+  .touch-device .buttons{gap:8px}
+  .touch-device .buttons>button{min-height:42px;padding:9px 12px;font-size:14px}
+  .touch-device .character-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .touch-device .character-card{min-height:96px;padding:5px;border-radius:12px}
+  .touch-device .character-card img{height:58px;margin-bottom:1px}
+  .touch-device .character-card b{font-size:13px;margin:0}
+  .touch-device .character-card small{font-size:9px}
+  .touch-device .actions{margin-top:8px}
+  .touch-device .actions button{min-height:40px;padding:7px 12px}
+  .touch-device .actions .sub{margin:0}
+  .touch-device .two-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .touch-device .slot{padding:7px;border-radius:12px}
+  .touch-device .slot-title{font-size:11px;margin-bottom:5px}
+  .touch-device .slot .character-card{min-height:74px;padding:3px}
+  .touch-device .slot .character-card img{height:43px}
+  .touch-device .choice{margin-top:4px;font-size:10px}
+  .touch-device .settings-card{width:min(980px,100%);padding:11px 13px;border-radius:15px}
+  .touch-device .settings-card>.sub{display:none}
+  .touch-device .settings-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .touch-device .settings-section{padding:8px;border-radius:11px}
+  .touch-device .settings-section h3{margin-bottom:6px;font-size:13px}
+  .touch-device .setting-row{margin:5px 0;gap:7px;font-size:11px}
+  .touch-device .setting-row select{min-width:135px;padding:6px;font-size:11px}
+  .touch-device .check-grid{gap:4px}
+  .touch-device .check-grid label{padding:5px;font-size:10px}
+  .touch-device .settings-note{font-size:9px;line-height:1.25}
+  .touch-device .weapon-order{grid-template-columns:repeat(3,1fr);gap:4px}
+  .touch-device .weapon-order-row{grid-template-columns:24px 1fr;gap:3px}
+  .touch-device .weapon-order-row select{min-width:0;width:100%;font-size:10px;padding:5px}
+  .touch-device .settings-actions{position:sticky;bottom:-11px;margin:7px -13px -11px;padding:7px 13px calc(7px + env(safe-area-inset-bottom));background:rgba(10,15,19,.96)}
+  .touch-device .settings-actions button{min-height:38px;padding:6px 10px;font-size:11px}
+  .rotate-icon{font-size:38px}
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  .touch-device .card{padding:15px}
+  .touch-device .character-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .touch-device .character-card{min-height:132px;padding:7px}
+  .touch-device .character-card img{height:80px}
+  .touch-device .character-card b{font-size:13px}
+  .touch-device .character-card small{font-size:9px}
+  .touch-device .two-grid{grid-template-columns:1fr}
+  .touch-device .settings-grid{grid-template-columns:1fr}
+  .touch-device.game-playing #hud{max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 102px)}
+  .touch-device.game-playing #hud .hud-player{max-width:155px}
+}
+
 </style>
 </head>
 <body>
 <div id="app">
-<div id="hud" class="hidden"><span class="pill" id="p1">P1</span><span class="pill" id="p2">P2</span><span class="pill">NÍVEL <b id="level">1</b></span><span class="pill">ZOMBIES <b id="remaining">0</b></span><span class="pill">KILLS <b id="kills">0</b></span><span class="pill">🏆 SCORE <b id="score">0</b></span><span class="pill">🔥 OVERDRIVE <b id="overdrive">—</b></span><span class="pill">⚡ RAIVA <b id="rage">—</b></span><span class="pill">COMBO <b id="combo">—</b></span><span class="pill">🤝 APOIO <b id="reinforcement">—</b></span><span class="pill">🎵 <b id="musicCue">INTRO · 0:00</b></span><span class="pill">INTENSIDADE <b id="musicIntensity">LOW</b></span><span class="pill">✈ <b id="air">0</b></span><button id="settingsHud">⚙ DEFINIÇÕES</button><button id="sound">🔊 SOM</button></div>
+<div id="hud" class="hidden"><span class="pill hud-player" id="p1">P1</span><span class="pill hud-player" id="p2">P2</span><span class="pill hud-core">NÍVEL <b id="level">1</b></span><span class="pill hud-core">ZOMBIES <b id="remaining">0</b></span><span class="pill hud-core">KILLS <b id="kills">0</b></span><span class="pill hud-extra">🏆 SCORE <b id="score">0</b></span><span class="pill hud-extra">🔥 OVERDRIVE <b id="overdrive">—</b></span><span class="pill hud-extra">⚡ RAIVA <b id="rage">—</b></span><span class="pill hud-extra">COMBO <b id="combo">—</b></span><span class="pill hud-extra">🤝 APOIO <b id="reinforcement">—</b></span><span class="pill hud-extra">🎵 <b id="musicCue">INTRO · 0:00</b></span><span class="pill hud-extra">INTENSIDADE <b id="musicIntensity">LOW</b></span><span class="pill hud-extra">✈ <b id="air">0</b></span><button id="settingsHud">⚙ DEFINIÇÕES</button><button id="sound">🔊 SOM</button></div>
 <div id="gameWrap"><canvas id="game"></canvas><div id="toast"></div><div id="runtime-status">READY</div>
 <div id="touchControls" class="touch-only hidden">
   <div id="touchJoy1Wrap" class="touch-zone joy-wrap">
@@ -103,9 +185,9 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
     <button id="touchSettings" class="touch-action" aria-label="Definições">⚙<small>MENU</small></button>
   </div>
 </div>
-<div id="rotateHint"><div class="rotate-card"><span class="rotate-icon">📱</span><h2>RODA O TELEFONE</h2><p>Para jogar melhor, usa o telefone na horizontal.</p></div></div>
+<div id="rotateHint"><div class="rotate-card"><span class="rotate-icon">📱</span><h2>RODA O TELEFONE</h2><p>Para veres melhor o campo e os controlos, joga na horizontal.</p><div class="rotate-actions"><button id="rotateFullscreen" class="primary">⛶ ECRÃ INTEIRO</button><button id="rotateDismiss">JOGAR ASSIM</button></div></div></div>
 <div id="menu"><div class="card">
-  <div id="modeMenu"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub">V4.5 · TOUCH & MOBILE + DEAD ENEMY HOTFIX + STABLE MOTION: zombies e bosses usam direcção real, horde steering, ataques com wind-up, hit reaction e movimentos próprios por espécie. Music Director mantido; Rage por defeito nos níveis 15/30/45, configurável nas Definições.</div><div class="buttons"><button id="onePlayer">1 JOGADOR</button><button id="twoPlayers">2 JOGADORES</button><button id="settingsMenu" style="grid-column:1/-1">⚙ DEFINIÇÕES DE GAMEPLAY</button></div><p class="sub desktop-control-copy" style="margin-top:16px">Single Player: WASD · Two Players: P1 WASD / P2 setas · disparo automático · ESPAÇO: Airstrike</p>
+  <div id="modeMenu"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub version-copy">V4.5.1 · MOBILE UX FIX · câmara e zoom mobile, HUD compacto, controlos touch, safe areas, landscape e fullscreen. Gameplay, inimigos, loot e Music Director mantidos.</div><div class="buttons"><button id="onePlayer">1 JOGADOR</button><button id="twoPlayers">2 JOGADORES</button><button id="settingsMenu" style="grid-column:1/-1">⚙ DEFINIÇÕES DE GAMEPLAY</button></div><p class="sub desktop-control-copy" style="margin-top:16px">Single Player: WASD · Two Players: P1 WASD / P2 setas · disparo automático · ESPAÇO: Airstrike</p>
 <p class="sub mobile-control-copy" style="margin-top:16px">📱 TOUCH: joystick virtual · disparo automático · botão Airstrike · joga preferencialmente na horizontal. Em 2 jogadores aparecem dois joysticks.</p></div>
 
   <div id="singleCharacterMenu" class="hidden"><h1>ESCOLHE O TEU SOBREVIVENTE</h1><div class="sub">Single Player: teclado usa W A S D; em touch aparece um joystick virtual.</div>
@@ -186,6 +268,6 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
 
 <div id="gameOver" class="hidden"><div class="card"><h1 id="resultTitle">GAME OVER</h1><p class="sub" id="resultText"></p><button id="restart">JOGAR NOVAMENTE</button></div></div>
 </div>
-<footer>V4.5 · Touch & Mobile · Stable Motion · Settings · Music Director · 4 direcções · Horde Steering · Attack Wind-up · Hit Reaction · Vampire Dash · Power Boss Phases · Nocturnus Teleport</footer></div>
+<footer>V4.5.1 · Mobile UX Fix · Stable Motion · Settings · Music Director · 4 direcções · Horde Steering · Attack Wind-up · Hit Reaction · Vampire Dash · Power Boss Phases · Nocturnus Teleport</footer></div>
 <script src="build/game.js"></script>
 </body></html>
