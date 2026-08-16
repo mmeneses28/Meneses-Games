@@ -78,36 +78,264 @@ canvas,#touchControls,.virtual-joystick{touch-action:none}
   .touch-zone{bottom:max(8px,env(safe-area-inset-bottom))}
 }
 @media (orientation:portrait){
-  .touch-device #rotateHint{display:flex}
+  .touch-device #rotateHint{display:flex!important}
+  .touch-device #touchControls{visibility:hidden!important}
 }
-.mobile-portrait-blocked #rotateHint{display:flex!important;pointer-events:auto}
-.mobile-portrait-blocked canvas,.mobile-portrait-blocked #touchControls{visibility:hidden}
+@media (orientation:landscape){
+  .touch-device #rotateHint{display:none!important}
+}
 
+/* V4.5.1 — Mobile UX profile. Desktop rules above remain the default. */
+.touch-device{--mobile-edge:clamp(10px,2.2vw,18px);--mobile-top:calc(env(safe-area-inset-top) + 8px);--mobile-bottom:calc(env(safe-area-inset-bottom) + 8px)}
+.touch-device #app{width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+.touch-device.game-playing #gameWrap{position:fixed;inset:0;width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+.touch-device #menu,.touch-device #gameOver,.touch-device .settings-overlay{position:fixed;inset:0;padding:var(--mobile-top) calc(env(safe-area-inset-right) + var(--mobile-edge)) var(--mobile-bottom) calc(env(safe-area-inset-left) + var(--mobile-edge))}
+.touch-device .card,.touch-device .settings-card{max-width:100%;max-height:100%;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.touch-device.game-playing #hud{position:fixed;left:calc(env(safe-area-inset-left) + 8px);right:auto;top:var(--mobile-top);z-index:9;display:flex;flex-wrap:nowrap;max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 128px);overflow:hidden;padding:0;background:none;border:0;gap:5px;pointer-events:none}
+.touch-device.game-playing #hud .pill{flex:0 0 auto;min-height:28px;padding:5px 8px;border-color:rgba(255,255,255,.18);background:rgba(7,12,15,.76);box-shadow:0 2px 8px rgba(0,0,0,.24);font-size:10px;white-space:nowrap}
+.touch-device.game-playing #hud .hud-player{max-width:210px;overflow:hidden;text-overflow:ellipsis}
+.touch-device.game-playing #hud .hud-extra,.touch-device.game-playing #settingsHud,.touch-device.game-playing #sound{display:none}
+.touch-device.game-playing.single-player #p2{display:none}
+.touch-device #toast{position:fixed;top:calc(var(--mobile-top) + 36px);max-width:min(76vw,520px);padding:7px 11px;text-align:center;font-size:11px;white-space:normal}
+.virtual-joystick{width:86px;height:86px;border-width:1px;background:rgba(10,18,23,.26);box-shadow:inset 0 0 20px rgba(0,0,0,.28),0 4px 12px rgba(0,0,0,.18)}
+.joystick-knob{width:38px;height:38px;margin:-19px 0 0 -19px;border-width:2px}
+.joy-label{font-size:9px}
+.touch-zone{bottom:var(--mobile-bottom)}
+#touchJoy1Wrap{left:calc(env(safe-area-inset-left) + var(--mobile-edge))}
+#touchJoy2Wrap{right:calc(env(safe-area-inset-right) + var(--mobile-edge))}
+.touch-actions{right:calc(env(safe-area-inset-right) + var(--mobile-edge));bottom:var(--mobile-bottom);gap:7px}
+.two-player-touch .touch-actions{right:50%;bottom:var(--mobile-bottom)}
+.touch-action{width:56px;height:56px;min-height:56px;padding:0;border-width:1px;font-size:20px;background:rgba(15,25,31,.68)}
+.touch-action small{font-size:7px;letter-spacing:.03em}
+#touchSettings,#touchFullscreen{width:42px;height:42px;min-height:42px;font-size:16px}
+.touch-top-actions{position:fixed;right:calc(env(safe-area-inset-right) + 8px);top:var(--mobile-top);gap:6px}
+#rotateHint{position:fixed;padding:calc(env(safe-area-inset-top) + 22px) calc(env(safe-area-inset-right) + 22px) calc(env(safe-area-inset-bottom) + 22px) calc(env(safe-area-inset-left) + 22px);pointer-events:auto}
+#rotateHint .rotate-card{padding:18px;border:1px solid #35424b;border-radius:18px;background:#10181e;box-shadow:0 18px 70px rgba(0,0,0,.5)}
+#rotateHint .rotate-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+#rotateHint .rotate-actions button{border-radius:12px}
+.touch-device .version-copy{font-size:12px;line-height:1.35}
+.touch-device .settings-card h1{font-size:clamp(22px,5vw,34px)}
+
+@media (orientation:landscape) and (max-height:560px){
+  .touch-device .card{width:min(900px,100%);padding:12px 14px;border-radius:15px}
+  .touch-device .card h1{font-size:clamp(22px,4.5vw,34px);line-height:1.05}
+  .touch-device .sub{margin-bottom:9px;font-size:11px;line-height:1.3}
+  .touch-device .buttons{gap:8px}
+  .touch-device .buttons>button{min-height:42px;padding:9px 12px;font-size:14px}
+  .touch-device .character-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .touch-device .character-card{min-height:96px;padding:5px;border-radius:12px}
+  .touch-device .character-card img{height:58px;margin-bottom:1px}
+  .touch-device .character-card b{font-size:13px;margin:0}
+  .touch-device .character-card small{font-size:9px}
+  .touch-device .actions{margin-top:8px}
+  .touch-device .actions button{min-height:40px;padding:7px 12px}
+  .touch-device .actions .sub{margin:0}
+  .touch-device .two-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .touch-device .slot{padding:7px;border-radius:12px}
+  .touch-device .slot-title{font-size:11px;margin-bottom:5px}
+  .touch-device .slot .character-card{min-height:74px;padding:3px}
+  .touch-device .slot .character-card img{height:43px}
+  .touch-device .choice{margin-top:4px;font-size:10px}
+  .touch-device .settings-card{width:min(980px,100%);padding:11px 13px;border-radius:15px}
+  .touch-device .settings-card>.sub{display:none}
+  .touch-device .settings-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .touch-device .settings-section{padding:8px;border-radius:11px}
+  .touch-device .settings-section h3{margin-bottom:6px;font-size:13px}
+  .touch-device .setting-row{margin:5px 0;gap:7px;font-size:11px}
+  .touch-device .setting-row select{min-width:135px;padding:6px;font-size:11px}
+  .touch-device .check-grid{gap:4px}
+  .touch-device .check-grid label{padding:5px;font-size:10px}
+  .touch-device .settings-note{font-size:9px;line-height:1.25}
+  .touch-device .weapon-order{grid-template-columns:repeat(3,1fr);gap:4px}
+  .touch-device .weapon-order-row{grid-template-columns:24px 1fr;gap:3px}
+  .touch-device .weapon-order-row select{min-width:0;width:100%;font-size:10px;padding:5px}
+  .touch-device .settings-actions{position:sticky;bottom:-11px;margin:7px -13px -11px;padding:7px 13px calc(7px + env(safe-area-inset-bottom));background:rgba(10,15,19,.96)}
+  .touch-device .settings-actions button{min-height:38px;padding:6px 10px;font-size:11px}
+  .rotate-icon{font-size:38px}
+}
+
+@media (orientation:portrait) and (max-width:760px){
+  .touch-device .card{padding:15px}
+  .touch-device .character-grid{grid-template-columns:repeat(3,1fr);gap:7px}
+  .touch-device .character-card{min-height:132px;padding:7px}
+  .touch-device .character-card img{height:80px}
+  .touch-device .character-card b{font-size:13px}
+  .touch-device .character-card small{font-size:9px}
+  .touch-device .two-grid{grid-template-columns:1fr}
+  .touch-device .settings-grid{grid-template-columns:1fr}
+  .touch-device.game-playing #hud{max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 102px)}
+  .touch-device.game-playing #hud .hud-player{max-width:155px}
+}
+
+
+.mission-choice-line{display:inline-block;margin:-2px 0 12px;padding:6px 10px;border-radius:999px;background:#202b34;color:#dfe8e3;font-weight:900}.mission-choice-line b{color:#f3c74f}
+
+/* V4.6.4.1 — Boss Bible + level beacon */
+.boss-bible-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}.boss-entry{position:relative;min-height:215px;border:1px solid #34444e;border-radius:16px;padding:12px;background:linear-gradient(180deg,#18242b,#10171c);overflow:hidden}.boss-entry img{display:block;width:100%;height:112px;object-fit:contain;filter:drop-shadow(0 9px 10px rgba(0,0,0,.42))}.boss-entry .boss-level{position:absolute;left:9px;top:9px;padding:5px 8px;border-radius:999px;background:#e5ae35;color:#17120a;font-weight:1000;font-size:11px}.boss-entry.apparition .boss-level{background:#f3d344}.boss-entry.final{border-color:#99424e;box-shadow:inset 0 0 0 1px rgba(255,80,93,.16)}.boss-entry b{display:block;font-size:16px;margin:7px 0 3px}.boss-entry small{display:block;color:#aeb9b4;line-height:1.3}.boss-entry .boss-type{display:inline-block;margin-top:7px;font-size:10px;font-weight:1000;letter-spacing:.06em;color:#f3c74f}.bible-note{margin-top:12px;padding:10px 12px;border-radius:12px;background:#10191f;border:1px solid #30404a;color:#aeb9b4;font-size:12px;line-height:1.4}
+#levelBeacon{position:absolute;left:16px;top:14px;z-index:6;pointer-events:none;text-align:left;min-width:270px;max-width:min(430px,48vw);padding:8px 18px 9px;border-radius:16px;background:linear-gradient(180deg,rgba(8,13,17,.86),rgba(8,13,17,.52));border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 28px rgba(0,0,0,.32);backdrop-filter:blur(3px)}#levelBeacon .level-number{font-size:clamp(25px,3vw,40px);line-height:1;font-weight:1000;letter-spacing:.04em;color:#f3c74f;text-shadow:0 3px 12px rgba(0,0,0,.7)}#levelBeacon .level-motivation{margin-top:4px;font-size:12px;font-weight:900;letter-spacing:.035em;color:#eef4ef;text-shadow:0 2px 8px #000}.level-up{animation:levelBeaconPulse 1.05s ease-out}@keyframes levelBeaconPulse{0%{transform:scale(.72);opacity:.1;filter:brightness(2.2)}35%{transform:scale(1.12);opacity:1}70%{transform:scale(.98)}100%{transform:scale(1)}}
+#rescueAlert{position:absolute;left:50%;top:27%;transform:translate(-50%,-50%);z-index:9;pointer-events:none;text-align:center;font-weight:1000;color:#fff;text-shadow:0 3px 16px #000;opacity:0}#rescueAlert.show{animation:rescueAlertPulse 2.2s ease-out}@keyframes rescueAlertPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.16)}42%{transform:translate(-50%,-50%) scale(.96)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}#rescueAlert strong{display:block;font-size:clamp(28px,4vw,52px);color:#ffe24f}#rescueAlert span{display:block;margin-top:4px;font-size:14px}
+@media(max-width:900px){.boss-bible-grid{grid-template-columns:repeat(2,1fr)}.boss-entry{min-height:190px}.boss-entry img{height:92px}}@media(max-width:560px){.boss-bible-grid{grid-template-columns:1fr 1fr;gap:8px}.boss-entry{min-height:168px;padding:9px}.boss-entry img{height:74px}.boss-entry b{font-size:13px}.boss-entry small{font-size:10px}#levelBeacon{min-width:210px;max-width:72vw;padding:6px 10px}#levelBeacon .level-motivation{font-size:9px}}
+.touch-device.game-playing #levelBeacon{position:fixed;left:50%;top:calc(var(--mobile-top) + 36px);transform:translateX(-50%);text-align:center;min-width:230px;max-width:72vw;padding:5px 10px;z-index:8}.touch-device.game-playing .level-up{animation:levelBeaconPulseTouch 1.05s ease-out}@keyframes levelBeaconPulseTouch{0%{transform:translateX(-50%) scale(.72);opacity:.1;filter:brightness(2.2)}35%{transform:translateX(-50%) scale(1.12);opacity:1}70%{transform:translateX(-50%) scale(.98)}100%{transform:translateX(-50%) scale(1)}}.touch-device.game-playing #toast{top:calc(var(--mobile-top) + 92px)}
+
+/* V4.6.6 — COMBAT HUD */
+.combat-hud{position:relative;z-index:8;display:grid!important;grid-template-columns:minmax(230px,.9fr) minmax(290px,.85fr) minmax(390px,1.25fr) auto;align-items:stretch;gap:0!important;padding:0!important;background:linear-gradient(180deg,rgba(5,8,11,.98),rgba(10,15,19,.96))!important;border:0!important;border-bottom:1px solid rgba(255,255,255,.12)!important;box-shadow:0 10px 30px rgba(0,0,0,.28)}
+.combat-hud.hidden{display:none!important}.hud-squad,.hud-command,.hud-combat,.hud-actions{min-height:82px;border-right:1px solid rgba(255,255,255,.08)}
+.hud-squad{display:grid;grid-template-columns:1fr;align-content:center;gap:4px;padding:10px 14px;background:linear-gradient(90deg,rgba(160,25,28,.12),transparent)}.hud-eyebrow{font-size:9px;letter-spacing:2px;color:#77848c;font-weight:1000}.hud-player-card{font-size:11px;line-height:1.15;font-weight:900;color:#e9efec;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.hud-player-card:first-of-type{color:#ff8585}.hud-command{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5px 16px;position:relative;background:radial-gradient(circle at 50% 50%,rgba(170,24,24,.17),transparent 70%)}.hud-command:after{content:"";position:absolute;left:15%;right:15%;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#d63232,transparent);box-shadow:0 0 12px rgba(255,44,44,.55)}.hud-mission-line{display:flex;gap:7px;align-items:center;font-size:9px;letter-spacing:1.6px;font-weight:1000;color:#7e898f}.hud-mission-line #mission{color:#efcfcf}.hud-mission-line i{width:3px;height:3px;border-radius:50%;background:#d84242}.hud-level-main{display:flex;align-items:baseline;gap:8px;line-height:.9}.hud-level-main small{font-size:11px;letter-spacing:2px;color:#a1a9ad;font-weight:1000}.hud-level-main b{font-size:38px;letter-spacing:-2px;color:#fff;font-weight:1000;text-shadow:0 0 18px rgba(255,65,65,.18)}.hud-next{max-width:320px;font-size:9px;letter-spacing:.5px;font-weight:900;color:#b7c0bd;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:4px}.hud-combat{display:flex;flex-direction:column;justify-content:center;padding:8px 12px;gap:7px}.hud-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.hud-stat{background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}.hud-stat span{font-size:8px;letter-spacing:1.2px;color:#77848a;font-weight:1000}.hud-stat b{font-size:18px;color:#f5f7f5}.hud-stat.score b{color:#ffc74a}.hud-status-row{display:flex;align-items:center;gap:5px;overflow:hidden}.hud-status{flex:0 0 auto;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.22);border-radius:5px;padding:3px 6px;font-size:8px;font-weight:1000;color:#89959a;white-space:nowrap}.hud-status b{color:#edf3f0}.hud-status.lives b{color:#ff8e8e}.hud-status.rampage b{color:#ff6a3a}.hud-status.rescue b{color:#ffe76f}.hud-actions{display:flex;align-items:center;gap:6px;padding:0 10px}.hud-actions button{width:34px;height:34px;border-radius:8px;padding:0;background:#111920;border-color:#2f3a42;font-size:15px}.hud-actions button:hover{background:#1d2932;border-color:#64737c}.hud-system-meta{position:absolute;right:88px;bottom:-17px;display:flex;gap:5px;pointer-events:none}.hud-system-meta span{background:rgba(7,10,12,.75);border:1px solid rgba(255,255,255,.06);border-radius:4px;padding:2px 5px;font-size:7px;color:#6e7a80}.hud-system-meta b{color:#aeb9b4}.game-playing #levelBeacon{top:102px!important}.game-playing #toast{top:24px}
+@media(max-width:1100px){.combat-hud{grid-template-columns:minmax(170px,.8fr) 250px 1fr auto}.hud-level-main b{font-size:34px}.hud-next{max-width:235px}.hud-status-row .rescue{display:none}.hud-stat span{font-size:7px}}
+@media(max-width:800px){.combat-hud{grid-template-columns:1fr 170px 1.1fr auto}.hud-squad{padding:7px 8px}.hud-eyebrow{display:none}.hud-player-card{font-size:9px}.hud-command{padding:4px 7px}.hud-mission-line{font-size:7px}.hud-level-main b{font-size:29px}.hud-level-main small{font-size:8px}.hud-next{display:none}.hud-combat{padding:5px 6px;gap:4px}.hud-stat-grid{gap:3px}.hud-stat{padding:3px 5px}.hud-stat b{font-size:14px}.hud-status-row{gap:3px}.hud-status{padding:2px 4px;font-size:7px}.hud-actions{padding:0 5px;gap:3px}.hud-actions button{width:30px;height:30px}.hud-system-meta{display:none}.game-playing #levelBeacon{top:82px!important}}
+.touch-device.game-playing #hud.combat-hud{position:fixed!important;left:max(6px,env(safe-area-inset-left))!important;right:max(6px,env(safe-area-inset-right))!important;top:var(--mobile-top)!important;max-width:none!important;display:grid!important;grid-template-columns:1fr 145px 1.1fr auto!important;background:linear-gradient(180deg,rgba(5,8,11,.88),rgba(8,12,15,.78))!important;border:1px solid rgba(255,255,255,.10)!important;border-radius:10px;overflow:visible!important;box-shadow:0 5px 18px rgba(0,0,0,.35)}.touch-device.game-playing .hud-squad,.touch-device.game-playing .hud-command,.touch-device.game-playing .hud-combat,.touch-device.game-playing .hud-actions{min-height:58px}.touch-device.game-playing .hud-squad{display:grid!important}.touch-device.game-playing #hud .hud-player-card{display:block;max-width:175px;font-size:8px}.touch-device.game-playing .hud-command{display:flex!important}.touch-device.game-playing .hud-level-main b{font-size:25px}.touch-device.game-playing .hud-mission-line{font-size:6px}.touch-device.game-playing .hud-combat{display:flex!important}.touch-device.game-playing .hud-stat span{display:none}.touch-device.game-playing .hud-stat{justify-content:center;padding:3px}.touch-device.game-playing .hud-stat b{font-size:13px}.touch-device.game-playing .hud-status{font-size:6px}.touch-device.game-playing .hud-status:nth-child(4),.touch-device.game-playing .hud-status:nth-child(5){display:none}.touch-device.game-playing .hud-actions{display:flex!important}.touch-device.game-playing #settingsHud,.touch-device.game-playing #sound{display:block!important}.touch-device.game-playing #levelBeacon{top:calc(var(--mobile-top) + 66px)!important}
+
+/* V4.6.8 — mobile landscape lock + stable full-depth viewport */
+.touch-device.mobile-portrait-blocked #gameWrap{filter:none}
+.touch-device #rotateHint{z-index:60!important;background:rgba(3,6,8,.985);backdrop-filter:blur(8px)}
+.touch-device #rotateHint .rotate-card{max-width:430px;border-color:#5a6870;background:linear-gradient(180deg,#172129,#0b1115)}
+.touch-device #rotateHint h2{margin-top:8px;color:#f3c74f;letter-spacing:.04em}
+.touch-device #rotateHint p{color:#d7dfdb;line-height:1.45}
+.touch-device.game-playing canvas{image-rendering:auto}
+@media (orientation:landscape){
+  .touch-device.game-playing #gameWrap{width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+}
 </style>
 </head>
 <body>
 <div id="app">
-<div id="hud">
-  <div class="pill" id="p1">P1</div><div class="pill" id="p2">SINGLE PLAYER</div><div class="pill" id="missionHud">MISSÃO</div><div class="pill">NÍVEL <span id="level">1</span></div><div class="pill">ZOMBIES <span id="remaining">0</span></div><div class="pill">KILLS <span id="kills">0</span></div><div class="pill">🏆 SCORE <span id="score">0</span></div>
-  <div class="pill">🔥 OVERDRIVE <span id="overdrive">—</span></div><div class="pill">⚡ RAIVA <span id="rage">—</span></div><div class="pill">COMBO <span id="combo">—</span></div><div class="pill">🤜 APOIO <span id="reinforcement">—</span></div><div class="pill">🎵 <span id="musicCue">—</span></div><div class="pill">INTENSIDADE <span id="musicIntensity">—</span></div><div class="pill" id="rescueHud">🆘 RESGATE —</div><div class="pill">✈ <span id="air">0</span></div>
-  <button id="settingsHud">⚙ DEFINIÇÕES</button><button id="sound">🔊 SOM</button>
+<div id="hud" class="hidden combat-hud">
+  <div class="hud-squad">
+    <span class="hud-eyebrow">SQUAD</span>
+    <span class="hud-player-card" id="p1">P1</span>
+    <span class="hud-player-card" id="p2">P2</span>
+  </div>
+  <div class="hud-command">
+    <div class="hud-mission-line"><span id="mission">DESERTO</span><i></i><span>OPERAÇÃO</span></div>
+    <div class="hud-level-main"><small>NÍVEL</small><b id="level">1</b></div>
+    <div class="hud-next" id="hudNext">A NOITE SÓ ESTÁ A COMEÇAR.</div>
+  </div>
+  <div class="hud-combat">
+    <div class="hud-stat-grid">
+      <div class="hud-stat"><span>AMEAÇAS</span><b id="remaining">0</b></div>
+      <div class="hud-stat"><span>KILLS</span><b id="kills">0</b></div>
+      <div class="hud-stat score"><span>SCORE</span><b id="score">0</b></div>
+    </div>
+    <div class="hud-status-row">
+      <span class="hud-status lives">❤ EXTRA <b id="extraLives">P1 0</b></span>
+      <span class="hud-status">⚡ RAIVA <b id="rage">—</b></span>
+      <span class="hud-status rampage">🔥 RAMPAGE <b id="rampage">—</b></span>
+      <span class="hud-status">✈ AIR <b id="air">0</b></span>
+      <span class="hud-status rescue">🆘 <b id="rescue">—</b></span>
+    </div>
+  </div>
+  <div class="hud-actions">
+    <button id="settingsHud" title="Definições">⚙</button><button id="sound" title="Som">🔊</button>
+  </div>
+  <div class="hud-system-meta">
+    <span>🔥 OVERDRIVE <b id="overdrive">—</b></span><span>COMBO <b id="combo">—</b></span><span>🤝 <b id="reinforcement">—</b></span><span>🎵 <b id="musicCue">INTRO · 0:00</b></span><span>INT <b id="musicIntensity">LOW</b></span>
+  </div>
 </div>
-<div id="gameWrap"><canvas id="game"></canvas><div id="toast"></div><div id="runtime-status">BOOTING</div>
-<div id="rotateHint"><div class="rotate-card"><span class="rotate-icon">📱</span><h2>LANDSCAPE OBRIGATÓRIO</h2><p>Roda o telefone para horizontal para manter a profundidade e a escala completa do mapa.</p><strong>O jogo fica em pausa enquanto estiver em vertical.</strong></div></div>
+<div id="gameWrap"><canvas id="game"></canvas><div id="toast"></div><div id="runtime-status">READY</div><div id="levelBeacon" class="hidden"><div class="level-number">NÍVEL <span id="levelBeaconNumber">1</span></div><div id="levelMotivation" class="level-motivation">A NOITE SÓ ESTÁ A COMEÇAR.</div></div><div id="rescueAlert"><strong>SALVA-A!</strong><span>Acompanha-a, abre caminho e protege-a da horda.</span></div>
 <div id="touchControls" class="touch-only hidden">
-  <div id="touchJoy1Wrap" class="touch-zone joy-wrap"><div class="joy-label">P1</div><div id="touchJoy1" class="virtual-joystick"><div class="joystick-knob"></div></div></div>
-  <div id="touchJoy2Wrap" class="touch-zone joy-wrap hidden"><div class="joy-label">P2</div><div id="touchJoy2" class="virtual-joystick"><div class="joystick-knob"></div></div></div>
-  <div class="touch-actions"><button id="touchAirstrike" class="touch-action"><span>✈</span><small>AIR</small></button></div>
-  <div class="touch-top-actions"><button id="touchSettings" class="touch-action">⚙</button><button id="touchFullscreen" class="touch-action">⛶</button></div>
+  <div id="touchJoy1Wrap" class="touch-zone joy-wrap">
+    <div id="touchP1Label" class="joy-label">MOVE</div>
+    <div id="touchJoy1" class="virtual-joystick"><div id="touchJoy1Knob" class="joystick-knob"></div></div>
+  </div>
+  <div id="touchJoy2Wrap" class="touch-zone joy-wrap hidden">
+    <div class="joy-label">P2</div>
+    <div id="touchJoy2" class="virtual-joystick"><div id="touchJoy2Knob" class="joystick-knob"></div></div>
+  </div>
+  <div class="touch-actions">
+    <button id="touchAirstrike" class="touch-action" aria-label="Airstrike">✈<small>AIRSTRIKE</small></button>
+  </div>
+  <div class="touch-top-actions">
+    <button id="touchFullscreen" class="touch-action" aria-label="Ecrã inteiro">⛶<small>FULL</small></button>
+    <button id="touchSettings" class="touch-action" aria-label="Definições">⚙<small>MENU</small></button>
+  </div>
 </div>
+<div id="rotateHint"><div class="rotate-card"><span class="rotate-icon">📱</span><h2>LANDSCAPE OBRIGATÓRIO</h2><p>Roda o telefone para a horizontal. O jogo fica pausado até teres a profundidade total do mapa.</p><div class="rotate-actions"><button id="rotateFullscreen" class="primary">⛶ ECRÃ INTEIRO</button></div></div></div>
 <div id="menu"><div class="card">
-<div id="modeStep"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub">Escolhe o modo de jogo.</div><div class="buttons"><button id="single">1 JOGADOR</button><button id="two">2 JOGADORES</button></div></div>
-<div id="missionStep" class="hidden"><h2>ESCOLHER MISSÃO</h2><div class="sub">Escolhe o cenário antes de seleccionar os jogadores.</div><div class="mission-grid"><button class="mission-card" data-mission="deserto"><b>MISSÃO 1 — DESERTO</b><small>Campo de batalha original. Zombies, vampiros, Mega Hordes e Lord Nocturnus.</small><span class="mission-badge">MAPA ORIGINAL</span></button><button class="mission-card" data-mission="thriller"><b>MISSÃO 2 — THRILLER</b><small>Praça nocturna. Undead dancers, bosses especiais, aparições e Carnage.</small><span class="mission-badge">NOVA MISSÃO</span></button></div><div class="actions"><button id="backMode">← VOLTAR</button><span></span></div></div>
-<div id="bossBibleStep" class="hidden"><h2 id="bossBibleTitle">BOSS BIBLE</h2><div class="sub" id="bossBibleSub">Conhece os marcos antes de entrares.</div><div id="bossBibleGrid" class="boss-bible-grid"></div><div class="boss-bible-footer"><span id="bossBibleFinale"></span><button id="bossBibleContinue" class="primary">CONTINUAR →</button></div><div class="actions"><button id="backMissionBible">← MISSÕES</button><span></span></div></div>
-<div id="characterStep" class="hidden"><h2 id="characterStepTitle">ESCOLHER PERSONAGEM</h2><div class="sub desktop-control-copy">Single Player usa WASD. Em 2 jogadores: P1 usa WASD e P2 usa as setas. As armas disparam automaticamente.</div><div class="sub mobile-control-copy">No telemóvel/tablet usa os joysticks virtuais. As armas disparam automaticamente.</div><div id="singleCharacterGrid" class="character-grid"></div><div id="twoCharacterGrid" class="two-grid hidden"><div class="slot"><div class="slot-title">P1 · WASD</div><div class="character-grid" data-slot="1"></div><div class="choice" id="p1Choice">Não escolhido</div></div><div class="slot"><div class="slot-title">P2 · SETAS</div><div class="character-grid" data-slot="2"></div><div class="choice" id="p2Choice">Não escolhido</div></div></div><div class="actions"><button id="backMission">← MISSÕES</button><button id="startCharacters" class="primary" disabled>INICIAR JOGO</button></div></div>
+  <div id="modeMenu"><h1>MENESES: ZOMBIES & VAMPIROS</h1><div class="sub version-copy">V4.6.8 · <b>MOBILE LANDSCAPE & PERFORMANCE</b> · landscape obrigatório, escala de mapa igual ao browser e optimização para hordas/Carnage em mobile.</div><div class="buttons"><button id="onePlayer">1 JOGADOR</button><button id="twoPlayers">2 JOGADORES</button><button id="settingsMenu" style="grid-column:1/-1">⚙ DEFINIÇÕES DE GAMEPLAY</button></div><p class="sub desktop-control-copy" style="margin-top:16px">Single Player: WASD · Two Players: P1 WASD / P2 setas · disparo automático · ESPAÇO: Airstrike</p>
+<p class="sub mobile-control-copy" style="margin-top:16px">📱 TOUCH: joystick virtual · disparo automático · botão Airstrike · <b>LANDSCAPE OBRIGATÓRIO</b>. Em 2 jogadores aparecem dois joysticks.</p></div>
+
+  <div id="missionMenu" class="hidden"><h1>ESCOLHE A MISSÃO</h1><div class="sub">Primeiro escolhes o modo de jogo. Depois escolhes claramente em que missão queres jogar.</div><div class="mission-grid"><button id="mission_deserto" class="mission-card"><b>MISSÃO 1 · DESERTO</b><small>Mapa original de sobrevivência. Campo aberto, visibilidade alta e progressão clássica.</small><span class="mission-badge">SURVIVAL ORIGINAL</span></button><button id="mission_thriller" class="mission-card"><b>MISSÃO 2 · THRILLER</b><small>Bairro nocturno com praça central, cemitério, névoa e inimigos temáticos da missão Thriller.</small><span class="mission-badge">NOVO MAPA</span></button></div><div class="actions"><button data-back-to="modeMenu">← VOLTAR</button><span class="sub">Escolhe a missão antes de seleccionares os personagens.</span></div></div>
+
+  <div id="bossBibleMenu" class="hidden"><h1 id="bossBibleTitle">BOSS BIBLE</h1><div class="mission-choice-line">MISSÃO: <b id="bossBibleMission">DESERTO</b></div><div class="sub">Estuda a escalada. Cada marco tem um encontro maior — continua até ao próximo.</div><div id="bossBibleGrid" class="boss-bible-grid"></div><div class="bible-note">💀 Bosses são marcos. ❓ Mystery Crates aparecem em intervalos de 7 níveis: dentro de cada janela de 14 níveis existe uma Vida Extra escondida; as restantes podem trazer Rage ou o raro RAMPAGE.</div><div class="actions"><button data-back-to="missionMenu">← MUDAR MISSÃO</button><button id="bossBibleContinue" class="primary">ESCOLHER PERSONAGEM E INICIAR →</button></div></div>
+
+  <div id="singleCharacterMenu" class="hidden"><h1>ESCOLHE O TEU SOBREVIVENTE</h1><div class="mission-choice-line">MISSÃO: <b id="singleMissionLabel">DESERTO</b></div><div class="sub">Single Player: teclado usa W A S D; em touch aparece um joystick virtual.</div>
+    <div class="character-grid">
+      <button id="single_marcio" class="character-card"><img data-preview="marcio" alt="Marcio"><b class="vest-red">MARCIO</b><small>Colete vermelho</small></button>
+      <button id="single_marco" class="character-card"><img data-preview="marco" alt="Marco"><b class="vest-white">MARCO</b><small>Colete branco</small></button>
+      <button id="single_dany" class="character-card"><img data-preview="dany" alt="Dany"><b class="vest-pink">DANY</b><small>Colete rosa</small></button>
+    </div><div class="actions"><button data-back-to="bossBibleMenu">← BOSS BIBLE</button><span class="sub">Selecciona uma personagem para começar.</span></div>
+  </div>
+
+  <div id="twoCharacterMenu" class="hidden"><h1>ESCOLHA DE PERSONAGENS</h1><div class="mission-choice-line">MISSÃO: <b id="twoMissionLabel">DESERTO</b></div><div class="sub">Cada jogador escolhe uma personagem diferente. Teclado: P1 WASD / P2 setas. Touch: joystick P1 à esquerda e P2 à direita.</div>
+    <div class="two-grid">
+      <div class="slot"><div class="slot-title">PLAYER 1 · W A S D / TOUCH ESQUERDO</div><div class="character-grid">
+        <button id="p1_marcio" class="character-card"><img data-preview="marcio" alt="Marcio"><b>MARCIO</b></button>
+        <button id="p1_marco" class="character-card"><img data-preview="marco" alt="Marco"><b>MARCO</b></button>
+        <button id="p1_dany" class="character-card"><img data-preview="dany" alt="Dany"><b>DANY</b></button>
+      </div><div class="choice">Escolhido: <span id="p1Choice">Marcio</span></div></div>
+      <div class="slot"><div class="slot-title">PLAYER 2 · SETAS / TOUCH DIREITO</div><div class="character-grid">
+        <button id="p2_marcio" class="character-card"><img data-preview="marcio" alt="Marcio"><b>MARCIO</b></button>
+        <button id="p2_marco" class="character-card"><img data-preview="marco" alt="Marco"><b>MARCO</b></button>
+        <button id="p2_dany" class="character-card"><img data-preview="dany" alt="Dany"><b>DANY</b></button>
+      </div><div class="choice">Escolhido: <span id="p2Choice">Marco</span></div></div>
+    </div><div class="actions"><button data-back-to="bossBibleMenu">← BOSS BIBLE</button><button id="startTwo" class="primary">COMEÇAR BATALHA</button></div>
+  </div>
 </div></div>
+
+<div id="settingsOverlay" class="settings-overlay hidden">
+  <div class="settings-card">
+    <h1>⚙ DEFINIÇÕES DE GAMEPLAY</h1>
+    <div class="sub">Personaliza a partida. As definições ficam guardadas neste browser.</div>
+    <div class="settings-grid">
+      <div class="settings-section">
+        <h3>CAIXAS & EVENTOS</h3>
+        <div class="setting-row"><label for="setChestTime">Tempo para abrir uma caixa</label>
+          <select id="setChestTime"><option value="3">3 segundos</option><option value="5">5 segundos</option><option value="7">7 segundos</option><option value="10">10 segundos</option></select>
+        </div>
+        <div class="settings-note">Em cooperação, dois jogadores continuam a abrir aproximadamente 2× mais rápido.</div>
+        <div class="setting-row"><label for="setRageEvery">Modo Raiva</label>
+          <select id="setRageEvery"><option value="10">A cada 10 níveis</option><option value="15">A cada 15 níveis</option><option value="20">A cada 20 níveis</option><option value="25">A cada 25 níveis</option></select>
+        </div>
+        <label class="setting-row" style="justify-content:flex-start"><input id="setMusicSync" type="checkbox"> <span>Sincronizar hordas/bosses com a música</span></label>
+      </div>
+
+      <div class="settings-section">
+        <h3>SPECIAL CRATE</h3>
+        <div class="check-grid">
+          <label><input id="special_rocket" type="checkbox"> 🚀 Rocket Launcher</label>
+          <label><input id="special_helicopter" type="checkbox"> 🚁 Helicopter Support</label>
+        </div>
+        <p class="settings-note">Pelo menos uma recompensa fica sempre activa. O Helicóptero tem pity system: se não aparecer, o jogo garante uma entrada até ao nível 12.</p>
+
+        <h3 style="margin-top:18px">TACTICAL CRATE</h3>
+        <div class="check-grid">
+          <label><input id="tactical_weapon" type="checkbox"> 🔫 Upgrade de arma</label>
+          <label><input id="tactical_grenade" type="checkbox"> 💣 Grenades</label>
+          <label><input id="tactical_rocket" type="checkbox"> 🚀 Rocket Support</label>
+          <label><input id="tactical_shield" type="checkbox"> 🛡 Shield</label>
+          <label><input id="tactical_drone" type="checkbox"> 🚁 Drone</label>
+          <label><input id="tactical_sam" type="checkbox"> 🎯 SAM Turret</label>
+          <label><input id="tactical_airstrike" type="checkbox"> ✈ Airstrike</label>
+        </div>
+      </div>
+
+      <div class="settings-section" style="grid-column:1/-1">
+        <h3>PROGRESSÃO DAS ARMAS</h3>
+        <div class="settings-note">Define o que vem a seguir nas Normal Crates. Se repetires uma arma, a configuração é automaticamente corrigida para manter uma progressão válida.</div>
+        <div id="weaponOrderSettings" class="weapon-order"></div>
+      </div>
+    </div>
+    <div id="settingsStatus" class="settings-status"></div>
+    <div class="settings-actions">
+      <button id="settingsDefaults">REPOR STANDARD</button>
+      <button id="settingsCancel">FECHAR</button>
+      <button id="settingsSave" class="primary">GUARDAR DEFINIÇÕES</button>
+    </div>
+  </div>
+</div>
+
+<div id="gameOver" class="hidden"><div class="card"><h1 id="resultTitle">GAME OVER</h1><p class="sub" id="resultText"></p><button id="restart">JOGAR NOVAMENTE</button></div></div>
 </div>
 <footer>V4.6.8 · Mobile Landscape Lock · Performance Pass · Helicopter · Rescue AI · Mystery Crate · Thriller Boss Arc</footer></div>
 <script src="build/game.js"></script>
-<script src="build/mobile-graphics-hotfix.js?v=4.6.8.1"></script>
 </body></html>
