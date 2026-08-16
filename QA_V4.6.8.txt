@@ -1,0 +1,16 @@
+QA V4.6.8 — 2026-08-16
+
+Browser de teste: Chromium headless, mobile emulation, touch enabled, deviceScaleFactor 2.
+
+PASS — landscape 844x390: touch device detectado.
+PASS — renderer zoom = 1.0 em mobile landscape.
+PASS — desktop renderer zoom = 1.0 (mesma escala mundo/CSS pixel).
+PASS — canvas backing store em mobile: 844 CSS px -> 1055 px (~1.25 DPR cap), mesmo com deviceScaleFactor 2.
+PASS — portrait 390x844: overlay LANDSCAPE OBRIGATÓRIO = visible.
+PASS — ao entrar em portrait durante gameplay: state.running=false e orientationPaused=true.
+PASS — ao voltar para landscape: gameplay retoma automaticamente e orientationPaused=false.
+PASS — stress runtime com ~200 inimigos: 120 frames renderizados em ~2 segundos no ambiente de teste (~60 fps), state.running=true.
+PASS — 0 page errors durante QA.
+PASS — Boss Bible standalone: 0 imagens quebradas.
+
+Nota: em hardware móvel real, FPS depende do modelo/temperatura/browser; a V4.6.8 remove os principais hotspots encontrados no código e preserva a população da horda.

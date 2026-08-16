@@ -1,7 +1,91 @@
 {
-  "battlefield.png": {
+  "battlefield.webp": {
     "width": 1672,
     "height": 941
+  },
+  "battlefield_thriller.webp": {
+    "width": 1672,
+    "height": 941
+  },
+  "bosses/blackYellowThriller/down.png": {
+    "width": 138,
+    "height": 161
+  },
+  "bosses/blackYellowThriller/left.png": {
+    "width": 92,
+    "height": 161
+  },
+  "bosses/blackYellowThriller/right.png": {
+    "width": 84,
+    "height": 161
+  },
+  "bosses/blackYellowThriller/up.png": {
+    "width": 137,
+    "height": 161
+  },
+  "bosses/redThriller/down.png": {
+    "width": 138,
+    "height": 161
+  },
+  "bosses/redThriller/left.png": {
+    "width": 92,
+    "height": 161
+  },
+  "bosses/redThriller/right.png": {
+    "width": 84,
+    "height": 161
+  },
+  "bosses/redThriller/up.png": {
+    "width": 137,
+    "height": 161
+  },
+  "bosses/shadowDancer/down.png": {
+    "width": 152,
+    "height": 163
+  },
+  "bosses/shadowDancer/left.png": {
+    "width": 96,
+    "height": 163
+  },
+  "bosses/shadowDancer/right.png": {
+    "width": 93,
+    "height": 163
+  },
+  "bosses/shadowDancer/up.png": {
+    "width": 141,
+    "height": 163
+  },
+  "bosses/werewolfThriller/down.png": {
+    "width": 178,
+    "height": 315
+  },
+  "bosses/werewolfThriller/left.png": {
+    "width": 178,
+    "height": 315
+  },
+  "bosses/werewolfThriller/right.png": {
+    "width": 178,
+    "height": 315
+  },
+  "bosses/werewolfThriller/up.png": {
+    "width": 178,
+    "height": 315
+  },
+  "bosses/yellowThriller/down.png": {
+    "width": 138,
+    "height": 161
+  },
+  "bosses/yellowThriller/left.png": {
+    "width": 92,
+    "height": 161
+  },
+  "bosses/yellowThriller/right.png": {
+    "width": 84,
+    "height": 161
+  },
+  "bosses/yellowThriller/up.png": {
+    "width": 137,
+    "height": 161
   },
   "characters/dany/idle_down.png": {
     "width": 173,
@@ -135,6 +219,14 @@
     "width": 156,
     "height": 152
   },
+  "effects/thriller_apparition.png": {
+    "width": 224,
+    "height": 155
+  },
+  "effects/thriller_logo.png": {
+    "width": 360,
+    "height": 192
+  },
   "enemies/commander/down.png": {
     "width": 286,
     "height": 196
@@ -247,6 +339,150 @@
     "width": 258,
     "height": 206
   },
+  "enemies_thriller/commander/down.png": {
+    "width": 152,
+    "height": 163
+  },
+  "enemies_thriller/commander/left.png": {
+    "width": 96,
+    "height": 163
+  },
+  "enemies_thriller/commander/right.png": {
+    "width": 93,
+    "height": 163
+  },
+  "enemies_thriller/commander/up.png": {
+    "width": 141,
+    "height": 163
+  },
+  "enemies_thriller/normal/down.png": {
+    "width": 152,
+    "height": 160
+  },
+  "enemies_thriller/normal/left.png": {
+    "width": 93,
+    "height": 160
+  },
+  "enemies_thriller/normal/right.png": {
+    "width": 90,
+    "height": 160
+  },
+  "enemies_thriller/normal/up.png": {
+    "width": 135,
+    "height": 160
+  },
+  "enemies_thriller/powerBoss/down.png": {
+    "width": 138,
+    "height": 161
+  },
+  "enemies_thriller/powerBoss/left.png": {
+    "width": 92,
+    "height": 161
+  },
+  "enemies_thriller/powerBoss/right.png": {
+    "width": 84,
+    "height": 161
+  },
+  "enemies_thriller/powerBoss/up.png": {
+    "width": 137,
+    "height": 161
+  },
+  "enemies_thriller/runner/down.png": {
+    "width": 152,
+    "height": 151
+  },
+  "enemies_thriller/runner/left.png": {
+    "width": 100,
+    "height": 151
+  },
+  "enemies_thriller/runner/right.png": {
+    "width": 113,
+    "height": 151
+  },
+  "enemies_thriller/runner/up.png": {
+    "width": 168,
+    "height": 151
+  },
+  "enemies_thriller/tank/down.png": {
+    "width": 152,
+    "height": 168
+  },
+  "enemies_thriller/tank/left.png": {
+    "width": 100,
+    "height": 168
+  },
+  "enemies_thriller/tank/right.png": {
+    "width": 105,
+    "height": 168
+  },
+  "enemies_thriller/tank/up.png": {
+    "width": 168,
+    "height": 168
+  },
+  "enemies_thriller/vampire/down.png": {
+    "width": 152,
+    "height": 181
+  },
+  "enemies_thriller/vampire/left.png": {
+    "width": 108,
+    "height": 181
+  },
+  "enemies_thriller/vampire/right.png": {
+    "width": 110,
+    "height": 181
+  },
+  "enemies_thriller/vampire/up.png": {
+    "width": 134,
+    "height": 181
+  },
+  "npc/rescueWoman/down.png": {
+    "width": 128,
+    "height": 128
+  },
+  "npc/rescueWoman/left.png": {
+    "width": 128,
+    "height": 128
+  },
+  "npc/rescueWoman/right.png": {
+    "width": 128,
+    "height": 128
+  },
+  "npc/rescueWoman/up.png": {
+    "width": 128,
+    "height": 128
+  },
+  "npc/rescueWomanV2/cower.webp": {
+    "width": 254,
+    "height": 487
+  },
+  "npc/rescueWomanV2/help.webp": {
+    "width": 341,
+    "height": 616
+  },
+  "npc/rescueWomanV2/idle.webp": {
+    "width": 251,
+    "height": 599
+  },
+  "npc/rescueWomanV2/panic.webp": {
+    "width": 263,
+    "height": 546
+  },
+  "npc/rescueWomanV2/relief.webp": {
+    "width": 235,
+    "height": 606
+  },
+  "npc/rescueWomanV2/run_down.webp": {
+    "width": 277,
+    "height": 589
+  },
+  "npc/rescueWomanV2/run_right.webp": {
+    "width": 328,
+    "height": 574
+  },
+  "npc/rescueWomanV2/run_up.webp": {
+    "width": 227,
+    "height": 620
+  },
   "projectiles/machinegun.png": {
     "width": 149,
     "height": 46
@@ -319,6 +555,22 @@
     "width": 317,
     "height": 306
   },
+  "props/helicopter/frame0.webp": {
+    "width": 423,
+    "height": 604
+  },
+  "props/helicopter/frame1.webp": {
+    "width": 529,
+    "height": 611
+  },
+  "props/helicopter/frame2.webp": {
+    "width": 532,
+    "height": 605
+  },
+  "props/helicopter/frame3.webp": {
+    "width": 420,
+    "height": 607
+  },
   "props/medkit.png": {
     "width": 200,
     "height": 199
@@ -338,6 +590,14 @@
   "props/shield_dome.png": {
     "width": 261,
     "height": 340
+  },
+  "ui/boss_bible_deserto.webp": {
+    "width": 1055,
+    "height": 641
+  },
+  "ui/boss_bible_thriller.webp": {
+    "width": 1448,
+    "height": 1086
   },
   "weapons/machinegun.png": {
     "width": 273,

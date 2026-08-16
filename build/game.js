@@ -18,6 +18,11 @@ var MZV;
         rageWaveCount: 4,
         rageComboWindow: 4,
         rageScoreMultiplier: 2,
+        crateRageSeconds: 60,
+        rampageSeconds: 38,
+        rampageScoreMultiplier: 3,
+        mysteryEveryLevels: 7,
+        extraLifeWindowLevels: 14,
         reinforcementProgressFactor: .5,
         supportProgressFactor: .5,
         overdriveEveryKills: 50,
@@ -229,6 +234,8 @@ var MZV;
             this.shieldUntil = 0;
             this.droneLevel = 0;
             this.droneUntil = 0;
+            this.extraLives = 0;
+            this.invulnerableUntil = 0;
             this.id = def.id;
             this.name = def.name;
             this.vest = def.vest;
@@ -310,6 +317,19 @@ var MZV;
             this.lives = 1;
             this.maxLives = 1;
             this.phase = 1;
+            this.variant = null;
+            this.isBoss = type === 'powerBoss' || type === 'nocturnus';
+            this.bossName = type === 'nocturnus' ? 'LORD NOCTURNUS' : type === 'powerBoss' ? 'POWER BOSS' : '';
+            this.form = null;
+            this.specialAttack = null;
+            this.specialStartedAt = 0;
+            this.specialHitAt = 0;
+            this.specialEndAt = 0;
+            this.specialCooldown = MZV.rand(2.5, 4.5);
+            this.specialDidHit = false;
+            this.specialTargetX = 0;
+            this.specialTargetY = 0;
+            this.specialCycle = 0;
             this.type = type;
             this.x = x;
             this.y = y;
@@ -398,8 +418,9 @@ var MZV;
             this.x = x;
             this.y = y;
             this.specialReward = specialReward;
-            this.radius = type === 'special' ? 35 : type === 'tactical' ? 31 : 27;
-            this.required = MZV.SETTINGS.chestSeconds();
+            this.radius = type === 'mystery' ? 38 : type === 'special' ? 35 : type === 'tactical' ? 31 : 27;
+            this.required = type === 'mystery' ? 9 : MZV.SETTINGS.chestSeconds();
+            this.life = type === 'mystery' ? 26 : type === 'special' ? 120 : type === 'tactical' ? 90 : 65;
         }
     }
     MZV.Chest = Chest;
@@ -465,6 +486,7 @@ var MZV;
             this.phase = 'entering';
             this.x = x - 360;
             this.y = y - 170;
+            this.muzzleUntil = 0;
         }
     }
     MZV.Helicopter = Helicopter;
@@ -472,9 +494,44 @@ var MZV;
 var MZV;
 (function (MZV) {
     MZV.ASSET_PATHS = {
-        'battlefield': 'assets/images/battlefield.png',
-        'battlefield.deserto': 'assets/images/battlefield_deserto.png',
-        'battlefield.thriller': 'assets/images/battlefield_thriller.png',
+        'battlefield': 'assets/images/battlefield.webp',
+        'battlefield.thriller': 'assets/images/battlefield_thriller.webp',
+        'bosses.yellowThriller.down': 'assets/images/bosses/yellowThriller/down.png',
+        'bosses.yellowThriller.left': 'assets/images/bosses/yellowThriller/left.png',
+        'bosses.yellowThriller.right': 'assets/images/bosses/yellowThriller/right.png',
+        'bosses.yellowThriller.up': 'assets/images/bosses/yellowThriller/up.png',
+        'bosses.shadowDancer.down': 'assets/images/bosses/shadowDancer/down.png',
+        'bosses.shadowDancer.left': 'assets/images/bosses/shadowDancer/left.png',
+        'bosses.shadowDancer.right': 'assets/images/bosses/shadowDancer/right.png',
+        'bosses.shadowDancer.up': 'assets/images/bosses/shadowDancer/up.png',
+        'bosses.redThriller.down': 'assets/images/bosses/redThriller/down.png',
+        'bosses.redThriller.left': 'assets/images/bosses/redThriller/left.png',
+        'bosses.redThriller.right': 'assets/images/bosses/redThriller/right.png',
+        'bosses.redThriller.up': 'assets/images/bosses/redThriller/up.png',
+        'bosses.blackYellowThriller.down': 'assets/images/bosses/blackYellowThriller/down.png',
+        'bosses.blackYellowThriller.left': 'assets/images/bosses/blackYellowThriller/left.png',
+        'bosses.blackYellowThriller.right': 'assets/images/bosses/blackYellowThriller/right.png',
+        'bosses.blackYellowThriller.up': 'assets/images/bosses/blackYellowThriller/up.png',
+        'bosses.werewolfThriller.down': 'assets/images/bosses/werewolfThriller/down.png',
+        'bosses.werewolfThriller.left': 'assets/images/bosses/werewolfThriller/left.png',
+        'bosses.werewolfThriller.right': 'assets/images/bosses/werewolfThriller/right.png',
+        'bosses.werewolfThriller.up': 'assets/images/bosses/werewolfThriller/up.png',
+        'npc.rescueWoman.down': 'assets/images/npc/rescueWoman/down.png',
+        'npc.rescueWoman.left': 'assets/images/npc/rescueWoman/left.png',
+        'npc.rescueWoman.right': 'assets/images/npc/rescueWoman/right.png',
+        'npc.rescueWoman.up': 'assets/images/npc/rescueWoman/up.png',
+        'npc.rescueWomanV2.idle': 'assets/images/npc/rescueWomanV2/idle.webp',
+        'npc.rescueWomanV2.run_down': 'assets/images/npc/rescueWomanV2/run_down.webp',
+        'npc.rescueWomanV2.run_right': 'assets/images/npc/rescueWomanV2/run_right.webp',
+        'npc.rescueWomanV2.panic': 'assets/images/npc/rescueWomanV2/panic.webp',
+        'npc.rescueWomanV2.cower': 'assets/images/npc/rescueWomanV2/cower.webp',
+        'npc.rescueWomanV2.help': 'assets/images/npc/rescueWomanV2/help.webp',
+        'npc.rescueWomanV2.relief': 'assets/images/npc/rescueWomanV2/relief.webp',
+        'npc.rescueWomanV2.run_up': 'assets/images/npc/rescueWomanV2/run_up.webp',
+        'props.helicopter.frame0': 'assets/images/props/helicopter/frame0.webp',
+        'props.helicopter.frame1': 'assets/images/props/helicopter/frame1.webp',
+        'props.helicopter.frame2': 'assets/images/props/helicopter/frame2.webp',
+        'props.helicopter.frame3': 'assets/images/props/helicopter/frame3.webp',
         'characters.dany.idle_down': 'assets/images/characters/dany/idle_down.png',
         'characters.dany.idle_left': 'assets/images/characters/dany/idle_left.png',
         'characters.dany.idle_right': 'assets/images/characters/dany/idle_right.png',
@@ -625,6 +682,13 @@ var MZV;
             this.combo = 0;
             this.comboUntil = 0;
             this.rageKills = 0;
+            this.rampageUntil = 0;
+            this.rampageKills = 0;
+            this.rampageWaveNextAt = 0;
+            this.mysterySpawnedLevels = new Set();
+            this.mysteryLifeLevels = new Set();
+            this.helicopterDeployments = 0;
+            this.lastHelicopterLevel = 0;
             this.elapsed = 0;
             this.running = false;
             this.gameOver = false;
@@ -656,6 +720,28 @@ var MZV;
             this.lightningAlpha = 0;
             this.scareUntil = 0;
             this.nextScareAt = 0;
+            this.carnageActive = false;
+            this.carnageSource = 'none';
+            this.carnageFlashUntil = 0;
+            this.carnageTitleStart = 0;
+            this.carnageTitleUntil = 0;
+            this.carnageNextWaveAt = 0;
+            this.carnageNextLaughAt = 0;
+            this.carnageEnteredAt = 0;
+            this.carnageSerial = 0;
+            this.pendingBossVariant = null;
+            this.yellowApparitionShown = false;
+            this.yellowApparitionStart = 0;
+            this.yellowApparitionUntil = 0;
+            this.rescueNpc = null;
+            this.rescueSpawnedSerial = 0;
+            this.rescuePendingAt = 0;
+            this.rescuesCompleted = 0;
+            this.rescuesFailed = 0;
+            this.rescueAlertUntil = 0;
+            this.werewolfScareStart = 0;
+            this.werewolfScareUntil = 0;
+            this.werewolfScareSoundedLevel = 0;
             this.players = [];
             this.reinforcement = null;
             this.enemies = [];
@@ -681,6 +767,13 @@ var MZV;
             this.combo = 0;
             this.comboUntil = 0;
             this.rageKills = 0;
+            this.rampageUntil = 0;
+            this.rampageKills = 0;
+            this.rampageWaveNextAt = 0;
+            this.mysterySpawnedLevels = new Set();
+            this.mysteryLifeLevels = new Set([Math.random()<.5?7:14, Math.random()<.5?21:28, Math.random()<.5?35:42]);
+            this.helicopterDeployments = 0;
+            this.lastHelicopterLevel = 0;
             this.elapsed = 0;
             this.running = true;
             this.gameOver = false;
@@ -711,6 +804,28 @@ var MZV;
             this.lightningAlpha = 0;
             this.scareUntil = 0;
             this.nextScareAt = 0;
+            this.carnageActive = false;
+            this.carnageSource = 'none';
+            this.carnageFlashUntil = 0;
+            this.carnageTitleStart = 0;
+            this.carnageTitleUntil = 0;
+            this.carnageNextWaveAt = 0;
+            this.carnageNextLaughAt = 0;
+            this.carnageEnteredAt = 0;
+            this.carnageSerial = 0;
+            this.pendingBossVariant = null;
+            this.yellowApparitionShown = false;
+            this.yellowApparitionStart = 0;
+            this.yellowApparitionUntil = 0;
+            this.rescueNpc = null;
+            this.rescueSpawnedSerial = 0;
+            this.rescuePendingAt = 0;
+            this.rescuesCompleted = 0;
+            this.rescuesFailed = 0;
+            this.rescueAlertUntil = 0;
+            this.werewolfScareStart = 0;
+            this.werewolfScareUntil = 0;
+            this.werewolfScareSoundedLevel = 0;
             this.players = [];
             this.reinforcement = null;
             this.enemies = [];
@@ -934,7 +1049,7 @@ var MZV;
             this.files = {
                 pistol: 'pistol.wav', machinegun: 'machinegun.wav', shotgun: 'shotgun.wav', rifle: 'rifle.wav', rocket: 'rocket_launch.wav', explosion: 'explosion.wav',
                 chest: 'chest.wav', tactical: 'tactical.wav', heal: 'heal.wav', shield: 'shield.wav', drone: 'drone.wav', sam: 'sam.wav', airstrike: 'airstrike.wav',
-                down: 'revive_alarm.wav', revive: 'revive_success.wav', boss: 'boss_roar.wav', nocturnus: 'nocturnus.wav', rage: 'rage.wav', level: 'level.wav', gameover: 'gameover.wav', victory: 'victory.wav', laugh: 'thriller_laugh.ogg'
+                down: 'revive_alarm.wav', revive: 'revive_success.wav', boss: 'boss_roar.wav', nocturnus: 'nocturnus.wav', rage: 'rage.wav', level: 'level.wav', gameover: 'gameover.wav', victory: 'victory.wav', laugh: 'thriller_laugh.ogg', scream: 'grito.ogg', thunder: 'thunder_carnage.ogg'
             };
             for (const [k, f] of Object.entries(this.files)) {
                 const pool = [];
@@ -1017,7 +1132,7 @@ var MZV;
             if (!this.enabled)
                 return;
             try {
-                this.gameplayMusic.currentTime = 0;
+                this.gameplayMusic.currentTime = 45;
                 this.gameplayMusic.volume = MZV.MUSIC.gameplayVolume;
                 void this.gameplayMusic.play().catch(() => { });
             }
@@ -1044,6 +1159,7 @@ var MZV;
         play(name, vol = .45) {
             if (!this.enabled)
                 return;
+            try { window.dispatchEvent(new CustomEvent('mzv-audio-cue', { detail: { name } })); } catch { }
             const p = this.pools.get(name);
             if (!p)
                 return;
@@ -1053,8 +1169,37 @@ var MZV;
             try {
                 a.pause();
                 a.currentTime = 0;
+                a.playbackRate = 1;
                 a.volume = Math.max(0, Math.min(1, vol));
                 void a.play().catch(() => { });
+            }
+            catch { }
+        }
+        playVariant(name, vol = .45, rate = 1) {
+            if (!this.enabled)
+                return;
+            try { window.dispatchEvent(new CustomEvent('mzv-audio-cue', { detail: { name } })); } catch { }
+            const p = this.pools.get(name);
+            if (!p)
+                return;
+            const i = this.cursor.get(name) ?? 0;
+            const a = p[i % p.length];
+            this.cursor.set(name, i + 1);
+            try {
+                a.pause();
+                a.currentTime = 0;
+                a.playbackRate = Math.max(.82, Math.min(1.18, rate));
+                a.volume = Math.max(0, Math.min(1, vol));
+                void a.play().catch(() => { });
+            }
+            catch { }
+        }
+        seekGameplay(seconds) {
+            try {
+                const max = Number.isFinite(this.gameplayMusic.duration) && this.gameplayMusic.duration > .2 ? this.gameplayMusic.duration - .08 : MZV.MUSIC.duration - .08;
+                this.gameplayMusic.currentTime = Math.max(0, Math.min(max, seconds));
+                if (this.enabled && this.musicMode === 'gameplay' && this.gameplayMusic.paused)
+                    void this.gameplayMusic.play().catch(() => { });
             }
             catch { }
         }
@@ -1065,8 +1210,9 @@ var MZV;
 var MZV;
 (function (MZV) {
     class MovementSystem {
-        constructor(input) {
+        constructor(input, state) {
             this.input = input;
+            this.state = state;
         }
         updatePlayer(p, dt) {
             if (!p.alive || p.out) {
@@ -1084,8 +1230,9 @@ var MZV;
                 }
                 p.moveX = x;
                 p.moveY = y;
-                p.x = MZV.clamp(p.x + x * p.speed * dt, 24, MZV.WORLD.width - 24);
-                p.y = MZV.clamp(p.y + y * p.speed * dt, 24, MZV.WORLD.height - 24);
+                const rampageSpeed = this.state && this.state.elapsed < this.state.rampageUntil ? 1.18 : 1;
+                p.x = MZV.clamp(p.x + x * p.speed * rampageSpeed * dt, 24, MZV.WORLD.width - 24);
+                p.y = MZV.clamp(p.y + y * p.speed * rampageSpeed * dt, 24, MZV.WORLD.height - 24);
                 if (Math.abs(x) > Math.abs(y))
                     p.direction = x < 0 ? 'left' : 'right';
                 else
@@ -1125,10 +1272,42 @@ var MZV;
             s.pendingHordeCount = Math.max(0, count - initial);
             for (let i = 0; i < initial; i++)
                 this.spawnRandom();
+            s.pendingBossVariant = null;
+            if (s.mission === 'thriller' && [9,23,37,47].includes(s.level)) {
+                s.werewolfScareStart = s.elapsed + MZV.rand(1.5, 2.8);
+                s.werewolfScareUntil = s.werewolfScareStart + 2.35;
+                s.werewolfScareSoundedLevel = 0;
+            }
+            if (s.mission === 'thriller' && s.level === 5 && !s.yellowApparitionShown) {
+                s.yellowApparitionShown = true;
+                s.yellowApparitionStart = s.elapsed + .45;
+                s.yellowApparitionUntil = s.yellowApparitionStart + 3.35;
+                s.lightningAlpha = Math.max(s.lightningAlpha || 0, .72);
+                this.audio.playVariant('laugh', .74, MZV.rand(.95, 1.04));
+                this.notify('👁 YELLOW THRILLER · ALGO ATRAVESSOU A RUA...');
+            }
             if (s.level === MZV.RULES.finalBossLevel) {
                 s.pendingBoss = 'nocturnus';
                 s.pendingBossSince = s.elapsed;
                 this.notify(s.mission === 'thriller' ? `🕺 NÍVEL ${s.level} · THRILLER BOSS FINAL A APROXIMAR-SE · aguarda o próximo PEAK` : `🧛 NÍVEL ${s.level} · LORD NOCTURNUS A APROXIMAR-SE · aguarda o próximo PEAK`);
+            }
+            else if (s.mission === 'thriller' && s.level === 13) {
+                s.pendingBoss = 'vampire';
+                s.pendingBossVariant = 'shadowDancer';
+                s.pendingBossSince = s.elapsed;
+                this.notify('🌑 NÍVEL 13 · SHADOW DANCER DETECTADO · prepara-te para CARNAGE');
+            }
+            else if (s.mission === 'thriller' && s.level === 15) {
+                s.pendingBoss = 'powerBoss';
+                s.pendingBossVariant = 'yellowThriller';
+                s.pendingBossSince = s.elapsed;
+                this.notify('⚡ NÍVEL 15 · YELLOW THRILLER · FIRST FORM A APROXIMAR-SE');
+            }
+            else if (s.mission === 'thriller' && s.level === 40) {
+                s.pendingBoss = 'powerBoss';
+                s.pendingBossVariant = 'blackYellowThriller';
+                s.pendingBossSince = s.elapsed;
+                this.notify('🟨⬛ NÍVEL 40 · BLACK/YELLOW THRILLER · FORMA INTERMÉDIA');
             }
             else if (s.level % MZV.RULES.powerBossEvery === 0) {
                 s.pendingBoss = 'powerBoss';
@@ -1142,6 +1321,13 @@ var MZV;
                 this.audio.play('level', .25);
                 this.notify(`NÍVEL ${s.level} · pressão inicial ${initial} · horda principal sincronizada`);
             }
+            // Helicopter pity system: primeiro apoio garantido até ao nível 12; depois não deixa passar 12 níveis sem nova entrada.
+            if (MZV.SETTINGS.current.specialLoot.helicopter && ((s.level === 12 && (s.helicopterDeployments || 0) === 0) || ((s.helicopterDeployments || 0) > 0 && s.level - (s.lastHelicopterLevel || 0) >= 12))) {
+                if (s.pendingHelicopter <= 0 && !s.helicopters.length) {
+                    s.pendingHelicopter = 1;
+                    this.notify('🚁 AIR SUPPORT READY · GARANTIDO · entra no próximo DROP/PEAK');
+                }
+            }
             // Special Crate a cada 10 níveis.
             if (s.level % 10 === 0) {
                 const c = this.specialCratePos();
@@ -1154,8 +1340,10 @@ var MZV;
         onMusicCue(cue) {
             const s = this.state;
             if (cue.type === 'BUILD') {
-                if (s.pendingBoss)
-                    this.notify(`⚠ ${s.mission === 'thriller' ? 'THRILLER BOSS' : (s.pendingBoss === 'nocturnus' ? 'LORD NOCTURNUS' : 'POWER BOSS')} · aproximação detectada`);
+                if (s.pendingBoss) {
+                    const label = s.pendingBossVariant === 'shadowDancer' ? 'SHADOW DANCER' : s.pendingBossVariant === 'yellowThriller' ? 'YELLOW THRILLER' : s.pendingBossVariant === 'blackYellowThriller' ? 'BLACK/YELLOW THRILLER' : s.mission === 'thriller' ? 'THRILLER BOSS' : (s.pendingBoss === 'nocturnus' ? 'LORD NOCTURNUS' : 'POWER BOSS');
+                    this.notify(`⚠ ${label} · aproximação detectada`);
+                }
                 else if (s.pendingHordeCount > 0)
                     this.notify(`⚠ HORDA A APROXIMAR-SE · ${s.pendingHordeCount} inimigos`);
                 return;
@@ -1182,28 +1370,79 @@ var MZV;
             this.notify(`🧟 ${intensity} · +${n} inimigos NO BEAT`);
         }
         releaseBoss() {
-            const s = this.state, type = s.pendingBoss;
+            const s = this.state, type = s.pendingBoss, variant = s.pendingBossVariant;
             if (!type)
                 return;
             s.pendingBoss = null;
+            s.pendingBossVariant = null;
             s.pendingBossSince = 0;
+            if (variant === 'shadowDancer') {
+                const z = new MZV.Enemy('vampire', MZV.WORLD.width / 2, 240, s.level, true, s.mode === 'single');
+                z.variant = 'shadowDancer'; z.isBoss = true; z.bossName = 'SHADOW DANCER';
+                z.lives = 4; z.maxLives = 4;
+                z.maxHp = (s.mode === 'single' ? 780 : 980); z.hp = z.maxHp;
+                z.baseSpeed = 145; z.speed = 145; z.damage = 22; z.radius = 34;
+                z.dashCooldown = .55; z.teleportCooldown = 2.6; z.summonCooldown = 5.8;
+                s.enemies.push(z); s.airstrikeCharges++;
+                this.audio.playVariant('laugh', .62, 1.07); this.audio.play('boss', .58);
+                this.notify('🌑 SHADOW DANCER · 4 VIDAS · DASH + SOMBRAS · CARNAGE');
+                return;
+            }
+            if (variant === 'yellowThriller') {
+                const z = new MZV.Enemy('powerBoss', MZV.WORLD.width / 2, 240, s.level, true, s.mode === 'single');
+                z.variant = 'yellowThriller'; z.isBoss = true; z.bossName = 'YELLOW THRILLER';
+                z.lives = 4; z.maxLives = 4;
+                z.maxHp = s.mode === 'single' ? 950 : 1220; z.hp = z.maxHp;
+                z.baseSpeed = 112; z.speed = 112; z.damage = 27; z.radius = 45;
+                z.dashCooldown = 1.0; z.summonCooldown = 5.2;
+                s.enemies.push(z); s.airstrikeCharges++;
+                this.audio.playVariant('laugh', .82, .98); this.audio.play('boss', .64);
+                this.notify('🟡 YELLOW THRILLER · FIRST FORM · 4 VIDAS · CARNAGE');
+                return;
+            }
+            if (variant === 'blackYellowThriller') {
+                const z = new MZV.Enemy('powerBoss', MZV.WORLD.width / 2, 235, s.level, true, s.mode === 'single');
+                z.variant = 'blackYellowThriller'; z.form = 'blackYellow'; z.isBoss = true; z.bossName = 'BLACK/YELLOW THRILLER';
+                z.lives = 7; z.maxLives = 7;
+                z.maxHp = s.mode === 'single' ? 1350 : 1750; z.hp = z.maxHp;
+                z.baseSpeed = 124; z.speed = 124; z.damage = 31; z.radius = 46;
+                z.dashCooldown = .75; z.teleportCooldown = 2.3; z.summonCooldown = 4.5; z.specialCooldown = 1.8;
+                s.enemies.push(z); s.airstrikeCharges += 2;
+                this.audio.playVariant('laugh', .86, .94); this.audio.play('boss', .68);
+                this.notify('🟨⬛ BLACK/YELLOW THRILLER · 7 VIDAS · BLACKOUT STEP + SUMMONS');
+                return;
+            }
             if (type === 'nocturnus') {
                 if (s.mission !== 'thriller') this.spawn('powerBoss');
                 const z = new MZV.Enemy('nocturnus', MZV.WORLD.width / 2, 220, s.level, true, s.mode === 'single');
                 s.enemies.push(z);
                 s.airstrikeCharges += 2;
                 if (s.mission === 'thriller') {
-                    this.audio.play('laugh', .78); this.audio.play('boss', .64);
-                    this.notify('🕺 THRILLER BOSS · BATALHA FINAL · ENTRADA NO PEAK');
+                    z.variant = 'thrillerFinal'; z.form = 'red'; z.isBoss = true; z.bossName = 'THRILLER BOSS';
+                    z.lives = 10; z.maxLives = 10;
+                    z.maxHp = s.mode === 'single' ? 1850 : 2400; z.hp = z.maxHp;
+                    z.baseSpeed = 108; z.speed = 108; z.damage = 32; z.radius = 48;
+                    z.teleportCooldown = 4.2; z.summonCooldown = 5.2; z.specialCooldown = 1.6;
+                    this.audio.play('laugh', .82); this.audio.play('boss', .72);
+                    this.notify('🔴 THRILLER BOSS · 10 VIDAS · RED FORM · CARNAGE FINAL');
                 } else {
                     this.audio.play('nocturnus', .72);
                     this.notify('🧛 LORD NOCTURNUS · ENTRADA SINCRONIZADA NO PEAK');
                 }
             }
             else {
+                const before = s.enemies.length;
                 this.spawn('powerBoss');
+                const z = s.enemies.slice(before).find(q => q.type === 'powerBoss');
+                if (z && s.mission === 'thriller') {
+                    // O primeiro boss da Thriller já deve ser uma parede real, mesmo em CARNAGE.
+                    z.maxHp *= s.level === 10 ? 1.85 : 1.35; z.hp = z.maxHp;
+                    z.baseSpeed *= s.level === 10 ? 1.12 : 1.06; z.speed = z.baseSpeed;
+                    z.damage *= s.level === 10 ? 1.18 : 1.10;
+                    z.bossName = s.level === 10 ? 'GRAVEDIGGER BRUTE' : 'THRILLER BRUTE';
+                }
                 this.audio.play('boss', .68);
-                this.notify('💪 POWER BOSS · 7 VIDAS · ENTRADA NO BEAT');
+                this.notify(s.mission === 'thriller' && s.level === 10 ? '⚰ GRAVEDIGGER BRUTE · 7 VIDAS · PRIMEIRO TESTE A SÉRIO' : '💪 POWER BOSS · 7 VIDAS · ENTRADA NO BEAT');
             }
         }
         specialCratePos() {
@@ -1284,24 +1523,42 @@ var MZV;
             }
             return false;
         }
-        start() {
-            this.s.lastRageLevel = this.s.level;
-            this.s.pendingRageLevel = 0;
-            this.s.rageUntil = this.s.elapsed + MZV.RULES.rageSeconds;
+        start(duration = MZV.RULES.rageSeconds, source = 'level') {
+            if (source === 'level') {
+                this.s.lastRageLevel = this.s.level;
+                this.s.pendingRageLevel = 0;
+            }
+            this.s.rageUntil = Math.max(this.s.rageUntil, this.s.elapsed + duration);
             this.s.combo = 0;
             this.s.comboUntil = 0;
             this.s.rageKills = 0;
             const scaledBase = MZV.levelBaseCount(this.s.level) * (this.s.mode === 'single' ? MZV.RULES.singleEnemyScale : 1);
             const bonus = this.s.mode === 'single' ? MZV.RULES.rageSingleEnemyBonus : MZV.RULES.rageTwoEnemyBonus;
-            const extra = Math.max(MZV.RULES.rageWaveCount, Math.ceil(scaledBase * bonus));
-            this.s.rageWaveSize = Math.max(1, Math.ceil(extra / MZV.RULES.rageWaveCount));
-            this.s.rageWavesRemaining = MZV.RULES.rageWaveCount;
-            this.s.rageWaveNextAt = this.s.elapsed + 28;
-            this.spawnReinforcement();
+            const waveCount = source === 'crate' ? 3 : MZV.RULES.rageWaveCount;
+            const extra = Math.max(waveCount, Math.ceil(scaledBase * bonus * (source === 'crate' ? .72 : 1)));
+            this.s.rageWaveSize = Math.max(1, Math.ceil(extra / waveCount));
+            this.s.rageWavesRemaining = waveCount;
+            this.s.rageWaveNextAt = this.s.elapsed + (source === 'crate' ? 18 : 28);
+            if (!this.s.reinforcement) this.spawnReinforcement();
             this.audio.play('rage', .72);
             const who = this.s.reinforcement?.name ?? 'ALIADO';
-            this.notify(`⚡ MODO RAIVA · NÍVEL ${this.s.level} · ${who.toUpperCase()} REINFORCEMENT · SCORE ×2 · NO DROP`);
+            this.notify(source === 'crate' ? `❓⚡ MYSTERY: MODO RAIVA · ${duration}s · ${who.toUpperCase()} · SCORE ×2` : `⚡ MODO RAIVA · NÍVEL ${this.s.level} · ${who.toUpperCase()} REINFORCEMENT · SCORE ×2 · NO DROP`);
             this.releaseWave();
+        }
+        startFromCrate() {
+            if (this.isActive()) { this.startRampage(); return 'rampage'; }
+            this.start(MZV.RULES.crateRageSeconds, 'crate');
+            return 'rage';
+        }
+        startRampage() {
+            const duration = MZV.RULES.rampageSeconds;
+            this.start(duration, 'crate');
+            this.s.rampageUntil = this.s.elapsed + duration;
+            this.s.rampageKills = 0;
+            this.s.rampageWaveNextAt = this.s.elapsed + 2.2;
+            this.audio.playVariant('laugh', .88, .94);
+            this.notify(`❓🔥 RAMPAGE! · ${duration}s · 4 ARMAS · SCORE ×3 · A HORDA RESPONDE`);
+            return 'rampage';
         }
         releaseWave() {
             if (this.s.rageWavesRemaining <= 0)
@@ -1365,6 +1622,11 @@ var MZV;
             return; r.state = 'exiting'; r.alive = true; r.hp = Math.max(1, r.hp); const dists = [{ d: r.x, x: -70, y: r.y }, { d: MZV.WORLD.width - r.x, x: MZV.WORLD.width + 70, y: r.y }, { d: r.y, x: r.x, y: -70 }, { d: MZV.WORLD.height - r.y, x: r.x, y: MZV.WORLD.height + 70 }].sort((a, b) => a.d - b.d); r.exitTarget = { x: dists[0].x, y: dists[0].y }; this.notify(`⚡ MODO RAIVA TERMINOU · ${r.name.toUpperCase()} EXTRACTION`); }
         update(dt) {
             const s = this.s;
+            if (s.rampageUntil > s.elapsed && s.elapsed >= s.rampageWaveNextAt) {
+                const cap = s.mode === 'single' ? 145 : 190;
+                if (s.enemies.filter(z=>z.alive).length < cap) this.spawnWave(Math.max(5, Math.min(18, Math.ceil(5 + s.level * .28))));
+                s.rampageWaveNextAt = s.elapsed + MZV.rand(4.2, 6.3);
+            }
             if (this.isActive()) {
                 if (s.combo > 0 && s.elapsed > s.comboUntil)
                     s.combo = 0;
@@ -1413,6 +1675,7 @@ var MZV;
             }
             if (s.rageUntil > 0 && s.elapsed >= s.rageUntil) {
                 s.rageUntil = 0;
+                s.rampageUntil = 0;
                 s.rageWavesRemaining = 0;
                 s.combo = 0;
                 this.startExtraction();
@@ -1454,6 +1717,13 @@ var MZV;
             this.audio.transitionToGameplay();
         }
         update() {
+            if (this.s.carnageActive) {
+                this.s.musicTime = this.audio.gameplayPosition();
+                this.s.musicCue = 'THRILLER PEAK';
+                this.s.musicIntensity = 'PEAK';
+                this.lastSongTime = this.s.musicTime;
+                return;
+            }
             if (!MZV.SETTINGS.current.musicSync) {
                 if (this.s.elapsed >= this.nextUnsyncedCue) {
                     this.nextUnsyncedCue = this.s.elapsed + 12;
@@ -1471,15 +1741,22 @@ var MZV;
                 return;
             }
             const absolute = this.s.elapsed;
-            const loop = Math.floor(absolute / MZV.MUSIC.duration);
-            const songTime = absolute % MZV.MUSIC.duration;
+            const loopStart = 45;
+            const loopSpan = MZV.MUSIC.duration - loopStart;
+            let loop = 0, songTime = absolute;
+            if (absolute >= MZV.MUSIC.duration) {
+                const afterFirst = absolute - MZV.MUSIC.duration;
+                loop = 1 + Math.floor(afterFirst / loopSpan);
+                songTime = loopStart + (afterFirst % loopSpan);
+            }
             if (loop > this.s.musicLoop) {
                 for (let l = this.s.musicLoop + 1; l <= loop; l++) {
                     this.s.musicLoop = l;
                     this.audio.restartGameplayLoop();
-                    this.notify(`🎵 SURVIVAL LOOP ${l + 1} · inimigos +${Math.round(l * MZV.MUSIC.loopDifficultyStep * 100)}% resistência`);
+                    this.notify(`🎵 SURVIVAL LOOP ${l + 1} · intro saltada · inimigos +${Math.round(l * MZV.MUSIC.loopDifficultyStep * 100)}% resistência`);
                 }
-                this.lastSongTime = 0;
+                // Não disparamos cues da intro 0:00–0:45 quando o loop recomeça.
+                this.lastSongTime = loopStart;
             }
             this.s.musicTime = songTime;
             const cues = MZV.MUSIC.cues;
@@ -1498,6 +1775,12 @@ var MZV;
             }
             this.lastSongTime = songTime;
             this.lastAbsolute = absolute;
+        }
+        syncExternalSeek(songTime) {
+            this.lastSongTime = songTime;
+            this.s.musicTime = songTime;
+            this.s.musicCue = 'THRILLER PEAK';
+            this.s.musicIntensity = 'PEAK';
         }
         fire(cue) {
             this.s.musicCue = cue.label;
@@ -1523,12 +1806,338 @@ var MZV;
 })(MZV || (MZV = {}));
 var MZV;
 (function (MZV) {
+    class CarnageSystem {
+        constructor(s, audio, horde, music, notify) {
+            this.s = s;
+            this.audio = audio;
+            this.horde = horde;
+            this.music = music;
+            this.notify = notify;
+            this.START = 255;
+            this.END = 296;
+            this.nextThunderAt = 0;
+        }
+        bossAlive() {
+            return this.s.enemies.some(z => z.alive && (z.isBoss || z.type === 'powerBoss' || z.type === 'nocturnus'));
+        }
+        normalTimeline() {
+            const loopStart = 45, duration = MZV.MUSIC.duration, span = duration - loopStart, elapsed = this.s.elapsed;
+            if (elapsed < duration)
+                return elapsed;
+            return loopStart + ((elapsed - duration) % span);
+        }
+        timelineInCarnage() {
+            const t = this.normalTimeline();
+            return t >= this.START && t < this.END;
+        }
+        audioInCarnage() {
+            const t = this.audio.gameplayPosition();
+            return t >= this.START && t < this.END;
+        }
+        triggerPresentation() {
+            const s = this.s;
+            s.carnageFlashUntil = s.elapsed + .14;
+            s.carnageTitleStart = s.elapsed + .14;
+            s.carnageTitleUntil = s.carnageTitleStart + 1.55;
+        }
+        start(source, seekToStart) {
+            const s = this.s;
+            if (s.carnageActive) {
+                if (source === 'boss')
+                    s.carnageSource = 'boss';
+                return;
+            }
+            s.carnageActive = true;
+            s.carnageSource = source;
+            s.carnageEnteredAt = s.elapsed;
+            s.carnageSerial = (s.carnageSerial || 0) + 1;
+            if (s.carnageSerial === 1 && (s.rescuesCompleted || 0) === 0 && (s.rescuesFailed || 0) === 0) s.rescuePendingAt = s.elapsed + .75;
+            s.carnageNextWaveAt = s.elapsed + .85;
+            s.carnageNextLaughAt = s.elapsed + MZV.rand(6.5, 10.5);
+            this.nextThunderAt = s.elapsed + MZV.rand(5.5, 9.5);
+            this.triggerPresentation();
+            this.audio.playVariant('thunder', .72, MZV.rand(.96, 1.04));
+            if (source === 'boss')
+                this.audio.playVariant('laugh', .68, MZV.rand(.94, 1.06));
+            if (seekToStart) {
+                this.audio.seekGameplay(this.START);
+                this.music.syncExternalSeek(this.START);
+            }
+        }
+        end(seekToTimeline = false) {
+            const s = this.s;
+            if (!s.carnageActive)
+                return;
+            s.carnageActive = false;
+            s.carnageSource = 'none';
+            const timeline = this.normalTimeline();
+            if (seekToTimeline)
+                this.audio.seekGameplay(timeline);
+            this.music.syncExternalSeek(timeline);
+        }
+        spawnWave() {
+            const s = this.s;
+            if (s.enemies.length > (s.mode === 'single' ? 85 : 115))
+                return;
+            let count = (s.mode === 'single' ? 4 : 6) + Math.min(4, Math.floor(s.level / 12));
+            if (s.level < 8)
+                count = Math.max(3, count - 2);
+            for (let i = 0; i < count; i++) {
+                const r = Math.random();
+                let type = 'normal';
+                if (s.level >= 10 && r < .10)
+                    type = 'commander';
+                else if (s.level >= 8 && r < .18)
+                    type = 'tank';
+                else if (r < .62)
+                    type = 'runner';
+                this.horde.spawn(type);
+            }
+        }
+        update(dt) {
+            const s = this.s;
+            if (s.mission !== 'thriller') {
+                if (s.carnageActive)
+                    this.end(false);
+                return;
+            }
+            const boss = this.bossAlive();
+            const naturalTimeline = this.timelineInCarnage();
+            const naturalAudio = this.audio.gameplayPlaying() ? this.audioInCarnage() : naturalTimeline;
+            const natural = s.carnageSource === 'boss' ? naturalTimeline : naturalAudio;
+            if (!s.carnageActive) {
+                if (boss)
+                    this.start('boss', !naturalAudio);
+                else if (naturalAudio)
+                    this.start('natural', false);
+            }
+            else if (boss && s.carnageSource !== 'boss') {
+                // Se o boss entrar durante o Carnage natural, não reiniciamos a música nem a apresentação.
+                s.carnageSource = 'boss';
+            }
+            if (!s.carnageActive)
+                return;
+            if (s.carnageSource === 'boss') {
+                const pos = this.audio.gameplayPosition();
+                if (pos >= this.END - .10) {
+                    this.audio.seekGameplay(this.START);
+                    this.music.syncExternalSeek(this.START);
+                }
+                if (!boss) {
+                    if (natural) {
+                        s.carnageSource = 'natural';
+                        const timeline = this.normalTimeline();
+                        this.audio.seekGameplay(timeline);
+                        this.music.syncExternalSeek(timeline);
+                    }
+                    else {
+                        this.end(true);
+                        return;
+                    }
+                }
+            }
+            else if (!natural) {
+                this.end(false);
+                return;
+            }
+            if (s.elapsed >= s.carnageNextWaveAt) {
+                this.spawnWave();
+                s.carnageNextWaveAt = s.elapsed + MZV.rand(4.2, 5.8);
+            }
+            if (s.elapsed >= s.carnageNextLaughAt) {
+                if (Math.random() < .78)
+                    this.audio.playVariant('laugh', MZV.rand(.28, .50), MZV.rand(.90, 1.10));
+                s.carnageNextLaughAt = s.elapsed + MZV.rand(7.5, 13.5);
+            }
+            if (s.elapsed >= this.nextThunderAt) {
+                if (Math.random() < .88) {
+                    this.audio.playVariant('thunder', MZV.rand(.42, .68), MZV.rand(.92, 1.08));
+                    s.lightningAlpha = Math.max(s.lightningAlpha || 0, .48);
+                }
+                this.nextThunderAt = s.elapsed + MZV.rand(7.0, 13.0);
+            }
+        }
+    }
+    MZV.CarnageSystem = CarnageSystem;
+})(MZV || (MZV = {}));
+var MZV;
+(function (MZV) {
+    class RescueSystem {
+        constructor(s, audio, notify) {
+            this.s=s; this.audio=audio; this.notify=notify;
+            this.audioCueHandler=(e)=>{
+                if(e?.detail?.name==='laugh') this.startleFromLaugh();
+            };
+            try { window.addEventListener('mzv-audio-cue', this.audioCueHandler); } catch { }
+        }
+        startleFromLaugh() {
+            const s=this.s,n=s.rescueNpc;
+            if(!n||!n.active)return;
+            n.scaredUntil=Math.max(n.scaredUntil||0,s.elapsed+1.25);
+            n.panicPoseUntil=Math.max(n.panicPoseUntil||0,s.elapsed+.32);
+            n.state='panic';
+            let nearest=null,best=1e9;
+            for(const z of s.enemies){
+                if(!z.alive)continue;
+                const d=Math.hypot(z.x-n.x,z.y-n.y);
+                if(d<best){best=d;nearest=z;}
+            }
+            if(nearest){
+                const dx=n.x-nearest.x,dy=n.y-nearest.y,d=Math.hypot(dx,dy)||1;
+                n.panicX=dx/d;n.panicY=dy/d;
+            }else{
+                const a=MZV.rand(0,Math.PI*2);n.panicX=Math.cos(a);n.panicY=Math.sin(a);
+            }
+            // A gargalhada assusta-a sempre; o grito tem cooldown para não se tornar ruído contínuo.
+            if(s.elapsed >= (n.nextScreamAt||0)){
+                n.nextScreamAt=s.elapsed+3.4;
+                this.audio.playVariant('scream', .52, MZV.rand(.96,1.05));
+            }
+        }
+        scheduleIfNeeded() {
+            const s=this.s;
+            if (s.mission!=='thriller' || !s.carnageActive) return;
+            if ((s.rescueSpawnedSerial||0) >= (s.carnageSerial||0)) return;
+            const first=(s.carnageSerial||0)===1 && (s.rescuesCompleted||0)===0 && (s.rescuesFailed||0)===0;
+            if (!s.rescuePendingAt) s.rescuePendingAt=s.elapsed+(first?.75:2.3);
+            if (s.elapsed < s.rescuePendingAt) return;
+            s.rescueSpawnedSerial=s.carnageSerial; s.rescuePendingAt=0;
+            const alive=s.players.filter(p=>p.alive&&!p.out), base=alive[0]||s.players[0];
+            if(!base)return;
+            const ang=MZV.rand(0,Math.PI*2), dist=first?MZV.rand(145,195):MZV.rand(190,260);
+            const x=MZV.clamp(base.x+Math.cos(ang)*dist,120,MZV.WORLD.width-120), y=MZV.clamp(base.y+Math.sin(ang)*dist,120,MZV.WORLD.height-120);
+            s.rescueNpc={
+                x,y,hp:100,maxHp:100,progress:0,required:4.1,active:true,direction:'down',
+                vx:0,vy:0,state:'flee',spawnedAt:s.elapsed,timeoutAt:s.elapsed+42,
+                scaredUntil:0,panicPoseUntil:0,nextScreamAt:s.elapsed+.4,
+                panicX:0,panicY:0,seed:Math.random()*99
+            };
+            // Cerco inicial: ela já entra a fugir, em vez de esperar parada.
+            for(let i=0;i<8;i++){
+                const a=i/8*Math.PI*2+MZV.rand(-.20,.20), dd=MZV.rand(115,195), type=i<4?'runner':'normal';
+                s.enemies.push(new MZV.Enemy(type,MZV.clamp(x+Math.cos(a)*dd,30,MZV.WORLD.width-30),MZV.clamp(y+Math.sin(a)*dd,30,MZV.WORLD.height-30),s.level,true,s.mode==='single'));
+            }
+            s.rescueAlertUntil=s.elapsed+2.2;
+            this.audio.play('down', .38);
+            this.notify('🆘 SOBREVIVENTE EM FUGA · ABRE CAMINHO E PROTEGE-A!');
+        }
+        fail(reason='PERDESTE-A') {
+            const s=this.s,n=s.rescueNpc;if(!n||!n.active)return;
+            n.active=false; s.rescuesFailed=(s.rescuesFailed||0)+1;
+            this.notify(`💀 RESGATE FALHADO · ${reason}`);
+        }
+        complete() {
+            const s=this.s,n=s.rescueNpc;if(!n||!n.active)return;
+            n.active=false; n.savedUntil=s.elapsed+1.55; n.state='relief'; s.rescuesCompleted=(s.rescuesCompleted||0)+1; s.score+=750; s.airstrikeCharges++;
+            s.pickups.push(new MZV.Pickup('medkit',n.x+34,n.y,24));
+            this.audio.play('revive',.62); this.notify('✅ RESGATE COMPLETO · +750 SCORE · AIRSTRIKE +1');
+        }
+        update(dt) {
+            const s=this.s; this.scheduleIfNeeded(); const n=s.rescueNpc;
+            if(!n||!n.active)return;
+            if(s.elapsed>=n.timeoutAt){this.fail('TEMPO ESGOTADO');return;}
+
+            const players=s.players.filter(p=>p.alive&&!p.out); let nearest=null,best=1e9;
+            for(const p of players){const d=Math.hypot(p.x-n.x,p.y-n.y);if(d<best){best=d;nearest=p;}}
+
+            let fx=0,fy=0,danger=0,closeDanger=0,nearestThreat=1e9;
+            for(const z of s.enemies){
+                if(!z.alive)continue;
+                const dx=n.x-z.x,dy=n.y-z.y,d=Math.hypot(dx,dy)||1;
+                if(d<440){
+                    danger++;
+                    nearestThreat=Math.min(nearestThreat,d);
+                    const q=(440-d)/440;
+                    const elite=(z.type==='nocturnus'||z.type==='powerBoss'||z.type==='tank')?1.65:(z.type==='runner'?1.18:1);
+                    const w=q*q*elite;
+                    fx+=dx/d*w;fy+=dy/d*w;
+                }
+                if(d<88)closeDanger++;
+            }
+
+            // Procura o jogador como "zona segura", mas nunca atravessa uma horda para chegar a ele.
+            if(nearest){
+                const dx=nearest.x-n.x,dy=nearest.y-n.y,d=Math.hypot(dx,dy)||1;
+                const pull=danger===0?.90:danger<=4?.46:.18;
+                fx+=dx/d*pull;fy+=dy/d*pull;
+            }
+
+            // A gargalhada provoca um arranque brusco de pânico.
+            const scared=s.elapsed<(n.scaredUntil||0);
+            if(scared){
+                fx+=(n.panicX||0)*1.15;fy+=(n.panicY||0)*1.15;
+            }
+
+            // Mantém-se dentro do mapa e evita ficar prensada nos limites.
+            const margin=145;
+            if(n.x<margin)fx+=(margin-n.x)/margin*1.8;
+            if(n.x>MZV.WORLD.width-margin)fx-=(n.x-(MZV.WORLD.width-margin))/margin*1.8;
+            if(n.y<margin)fy+=(margin-n.y)/margin*1.8;
+            if(n.y>MZV.WORLD.height-margin)fy-=(n.y-(MZV.WORLD.height-margin))/margin*1.8;
+
+            let mag=Math.hypot(fx,fy);
+            if(mag<.08){
+                const a=s.elapsed*.85+n.seed;fx=Math.cos(a)*.18;fy=Math.sin(a)*.18;mag=Math.hypot(fx,fy);
+            }
+            fx/=mag||1;fy/=mag||1;
+
+            let speed=danger?156:112;
+            if(closeDanger>=2)speed=186;
+            if(scared)speed=205;
+            if(best<100&&danger<=2&&!scared)speed=72;
+            const dvx=fx*speed,dvy=fy*speed;
+            const steer=Math.min(1,dt*(scared?8.5:5.5));
+            n.vx+=(dvx-n.vx)*steer;n.vy+=(dvy-n.vy)*steer;
+            n.x=MZV.clamp(n.x+n.vx*dt,58,MZV.WORLD.width-58);
+            n.y=MZV.clamp(n.y+n.vy*dt,58,MZV.WORLD.height-58);
+
+            const vm=Math.hypot(n.vx,n.vy);
+            if(vm>12){
+                if(Math.abs(n.vx)>Math.abs(n.vy))n.direction=n.vx<0?'left':'right';
+                else n.direction=n.vy<0?'up':'down';
+            }
+            if(s.elapsed<(n.panicPoseUntil||0))n.state='panic';
+            else if(vm>32)n.state='run';
+            else if(closeDanger>=3&&nearestThreat<72)n.state='cower';
+            else if(best<125&&danger<=2)n.state='help';
+            else n.state='idle';
+
+            if(closeDanger>0)n.hp-=Math.min(20,2.9+closeDanger*2.05)*dt;
+            if(n.hp<=0){n.hp=0;this.fail('FOI ALCANÇADA');return;}
+
+            // O resgate progride quando o jogador consegue acompanhá-la e baixar a pressão da horda.
+            if(best<118){
+                const rate=danger<=1?1.45:danger<=3?.88:danger<=5?.42:.12;
+                n.progress=Math.min(n.required,n.progress+dt*rate);
+            } else n.progress=Math.max(0,n.progress-dt*.11);
+
+            if(n.progress>=n.required)this.complete();
+            if(!s.carnageActive && s.elapsed-n.spawnedAt>5 && n.active)this.fail('CARNAGE TERMINOU');
+        }
+    }
+    MZV.RescueSystem=RescueSystem;
+})(MZV || (MZV = {}));
+var MZV;
+(function (MZV) {
     class CombatSystem {
         constructor(s, audio, notify) {
             this.s = s;
             this.audio = audio;
             this.notify = notify;
             this.rageDamage = () => { };
+            this.collisionCellSize = 96;
+            this.enemyCollisionGrid = new Map();
+        }
+        collisionKey(cx, cy) { return `${cx},${cy}`; }
+        buildEnemyCollisionGrid() {
+            this.enemyCollisionGrid.clear();
+            const cs = this.collisionCellSize;
+            for (const z of this.s.enemies) {
+                if (!z.alive) continue;
+                const key = this.collisionKey(Math.floor(z.x / cs), Math.floor(z.y / cs));
+                const bucket = this.enemyCollisionGrid.get(key);
+                if (bucket) bucket.push(z); else this.enemyCollisionGrid.set(key, [z]);
+            }
         }
         nearest(p, range) { let best = null, d0 = Infinity; for (const z of this.s.enemies) {
             if (!z.alive)
@@ -1547,7 +2156,8 @@ var MZV;
             if (!target)
                 return;
             const overdrive = this.s.elapsed < this.s.overdriveUntil;
-            const rate = w.fireRate * (overdrive ? 1.35 : 1);
+            const rampage = this.s.elapsed < this.s.rampageUntil;
+            const rate = w.fireRate * (overdrive ? 1.35 : 1) * (rampage ? 1.65 : 1);
             p.nextShot = this.s.elapsed + 1 / rate;
             p.aimAngle = Math.atan2(target.y - p.y, target.x - p.x);
             p.muzzleUntil = this.s.elapsed + .07;
@@ -1559,8 +2169,8 @@ var MZV;
             for (const side of offsets) {
                 for (let k = 0; k < w.pellets; k++) {
                     const a = p.aimAngle + (Math.random() - .5) * w.spread;
-                    const speed = w.speed * (overdrive ? 1.2 : 1);
-                    const projW = { ...w, damage: w.damage * (overdrive ? 1.10 : 1), speed };
+                    const speed = w.speed * (overdrive ? 1.2 : 1) * (rampage ? 1.12 : 1);
+                    const projW = { ...w, damage: w.damage * (overdrive ? 1.10 : 1) * (rampage ? 1.15 : 1), speed };
                     const sx = p.x + px * side + Math.cos(a) * 26, sy = p.y + py * side + Math.sin(a) * 26;
                     this.s.projectiles.push(new MZV.Projectile(sx, sy, Math.cos(a) * speed, Math.sin(a) * speed, projW.range / speed, projW, p, 'player'));
                 }
@@ -1572,6 +2182,8 @@ var MZV;
                 this.firePlayer(p);
                 this.updateSupports(p);
             }
+            this.buildEnemyCollisionGrid();
+            const cs = this.collisionCellSize;
             for (const b of this.s.projectiles) {
                 if (b.dead)
                     continue;
@@ -1582,19 +2194,25 @@ var MZV;
                     b.dead = true;
                     continue;
                 }
-                for (const z of this.s.enemies) {
-                    if (!z.alive)
-                        continue;
-                    if (Math.hypot(b.x - z.x, b.y - z.y) <= b.radius + z.radius) {
-                        if (b.explosive)
-                            this.explode(b.x, b.y, b.explosionRadius, b.explosionDamage, '#ffad4e', b.source);
-                        else
-                            this.damageEnemy(z, b.damage, b.source, b.vx, b.vy, b.kind);
-                        b.penetration--;
-                        if (b.penetration <= 0)
-                            b.dead = true;
-                        if (b.dead)
-                            break;
+                const gcx = Math.floor(b.x / cs), gcy = Math.floor(b.y / cs);
+                projectileCells:
+                for (let oy = -1; oy <= 1; oy++) {
+                    for (let ox = -1; ox <= 1; ox++) {
+                        const bucket = this.enemyCollisionGrid.get(this.collisionKey(gcx + ox, gcy + oy));
+                        if (!bucket) continue;
+                        for (const z of bucket) {
+                            if (!z.alive) continue;
+                            const dx = b.x - z.x, dy = b.y - z.y, rr = b.radius + z.radius;
+                            if (dx * dx + dy * dy <= rr * rr) {
+                                if (b.explosive)
+                                    this.explode(b.x, b.y, b.explosionRadius, b.explosionDamage, '#ffad4e', b.source);
+                                else
+                                    this.damageEnemy(z, b.damage, b.source, b.vx, b.vy, b.kind);
+                                b.penetration--;
+                                if (b.penetration <= 0) b.dead = true;
+                                if (b.dead) break projectileCells;
+                            }
+                        }
                     }
                 }
             }
@@ -1624,17 +2242,54 @@ var MZV;
             z.hp -= dmg;
             if (z.hp > 0)
                 return;
-            if (z.type === 'powerBoss' && z.lives > 1) {
+            if (z.isBoss && z.lives > 1) {
                 z.lives--;
                 z.phase = z.maxLives - z.lives + 1;
+                if (z.variant === 'thrillerFinal') {
+                    const prev = z.form;
+                    z.form = z.lives >= 8 ? 'red' : z.lives >= 5 ? 'blackYellow' : z.lives >= 2 ? 'dual' : 'werewolf';
+                    if (z.form !== prev) {
+                        this.s.lightningAlpha = 1;
+                        z.specialCooldown = .65;
+                        if (z.form === 'blackYellow') {
+                            z.baseSpeed *= 1.10; z.damage *= 1.08;
+                            this.audio.playVariant('laugh', .92, .93);
+                            this.notify('🟨⬛ BLACK/YELLOW FORM · MAIS RÁPIDO · BLACKOUT STEP');
+                        } else if (z.form === 'dual') {
+                            z.baseSpeed *= 1.10; z.damage *= 1.10;
+                            this.audio.playVariant('laugh', .95, 1.05);
+                            this.notify('🔴🟡 DUAL FORM · RED + BLACK/YELLOW · ATAQUES COMBINADOS');
+                        } else if (z.form === 'werewolf') {
+                            z.baseSpeed *= 1.22; z.damage *= 1.22; z.radius = 58;
+                            this.audio.play('scream', .98); this.audio.playVariant('laugh', .96, .89);
+                            this.s.carnageFlashUntil = this.s.elapsed + .18;
+                            this.notify('🐺 THRILLER RAGE · WEREWOLF FORM · ÚLTIMA VIDA');
+                        }
+                    }
+                }
                 z.hp = z.maxHp;
-                z.stunUntil = this.s.elapsed + .72;
+                z.stunUntil = this.s.elapsed + .62;
                 z.motionState = 'stunned';
-                z.attackCooldown = .9;
-                z.knockbackX *= .2;
-                z.knockbackY *= .2;
+                z.attackCooldown = .65;
+                z.knockbackX *= .18;
+                z.knockbackY *= .18;
+                // Cada vida perdida acelera a luta e injeta pressão real, não apenas mais HP.
+                z.baseSpeed *= 1.055; z.speed = z.baseSpeed; z.damage *= 1.025;
+                if (this.s.mission === 'thriller') {
+                    const adds = z.variant === 'shadowDancer' ? 5 : z.variant === 'yellowThriller' ? 6 : z.variant === 'blackYellowThriller' ? 8 : z.variant === 'thrillerFinal' ? (z.form === 'werewolf' ? 12 : z.form === 'dual' ? 10 : 8) : 7;
+                    for (let i=0;i<adds;i++) {
+                        const a=Math.random()*Math.PI*2, dist=MZV.rand(90,170);
+                        const isClone=z.variant==='shadowDancer' && i<4;
+                        const type = isClone ? 'runner' : (Math.random()<.58?'runner':'normal');
+                        const e=new MZV.Enemy(type, MZV.clamp(z.x+Math.cos(a)*dist,30,MZV.WORLD.width-30), MZV.clamp(z.y+Math.sin(a)*dist,30,MZV.WORLD.height-30), this.s.level, true, this.s.mode==='single');
+                        if(isClone){e.variant='shadowClone';e.hp=e.maxHp=Math.max(70,120+this.s.level*4);e.baseSpeed*=1.18;e.speed=e.baseSpeed;}
+                        this.s.enemies.push(e);
+                    }
+                    this.audio.playVariant('laugh', .42, MZV.rand(.94,1.08));
+                }
                 this.audio.play('boss', .48);
-                this.notify(`💪 POWER BOSS · ${z.lives}/7 VIDAS · FASE ${z.phase} · MAIS AGRESSIVO`);
+                const name = z.bossName || (z.type === 'powerBoss' ? 'POWER BOSS' : 'BOSS');
+                this.notify(`⚠ ${name} · ${z.lives}/${z.maxLives} VIDAS · FASE ${z.phase} · MAIS AGRESSIVO`);
                 return;
             }
             this.killEnemy(z, source);
@@ -1648,13 +2303,17 @@ var MZV;
             const progressFactor = source === 'reinforcement' ? MZV.RULES.reinforcementProgressFactor : source === 'support' ? MZV.RULES.supportProgressFactor : 1;
             this.s.progressKills += progressFactor;
             const rage = this.s.elapsed < this.s.rageUntil;
+            const rampage = this.s.elapsed < this.s.rampageUntil;
             if (rage) {
                 this.s.combo++;
                 this.s.comboUntil = this.s.elapsed + MZV.RULES.rageComboWindow;
                 this.s.rageKills++;
+                if (rampage) this.s.rampageKills++;
             }
             const comboBonus = rage ? 1 + Math.min(20, this.s.combo) * .05 : 1;
-            const score = Math.round(MZV.killBaseScore(z.type) * (rage ? MZV.RULES.rageScoreMultiplier : 1) * comboBonus);
+            const carnageMultiplier = this.s.carnageActive ? 1.5 : 1;
+            const modeMultiplier = rampage ? MZV.RULES.rampageScoreMultiplier : rage ? MZV.RULES.rageScoreMultiplier : 1;
+            const score = Math.round(MZV.killBaseScore(z.type) * modeMultiplier * comboBonus * carnageMultiplier);
             this.s.score += score;
             if (z.type === 'nocturnus')
                 this.s.victory = true;
@@ -1693,6 +2352,7 @@ var MZV;
             }
         }
         damagePlayer(p, dmg) {
+            if (this.s.elapsed < (p.invulnerableUntil || 0)) return;
             if (p.shieldHp > 0 && this.s.elapsed < p.shieldUntil) {
                 const q = Math.min(dmg, p.shieldHp);
                 p.shieldHp -= q;
@@ -1701,6 +2361,16 @@ var MZV;
             if (dmg > 0)
                 p.hp -= dmg;
             if (p.hp <= 0 && p.alive) {
+                if ((p.extraLives || 0) > 0) {
+                    p.extraLives--;
+                    p.hp = Math.ceil(p.maxHp * .60);
+                    p.alive = true; p.out = false; p.downSince = null;
+                    p.invulnerableUntil = this.s.elapsed + 3.5;
+                    this.s.explosions.push(new MZV.Explosion(p.x,p.y,125,'#fff4a6'));
+                    this.audio.play('revive', .72);
+                    this.notify(`❤️ SECOND CHANCE · ${p.name.toUpperCase()} VOLTOU · 60% HP · ${p.extraLives} VIDA(S) EXTRA`);
+                    return;
+                }
                 p.hp = 0;
                 p.alive = false;
                 p.downSince = this.s.elapsed;
@@ -1783,6 +2453,8 @@ var MZV;
             const alive = this.s.players.filter(p => p.alive && !p.out);
             const cx = alive.reduce((q, p) => q + p.x, 0) / (alive.length || 1), cy = alive.reduce((q, p) => q + p.y, 0) / (alive.length || 1);
             this.s.helicopters.push(new MZV.Helicopter(cx, cy));
+            this.s.helicopterDeployments = (this.s.helicopterDeployments || 0) + 1;
+            this.s.lastHelicopterLevel = this.s.level;
             this.audio.play('drone', .60);
             this.notify('🚁 AIR SUPPORT INBOUND · ENTRADA NO PEAK · 30s');
         }
@@ -1828,6 +2500,8 @@ var MZV;
                             h.nextShot = this.s.elapsed + .095;
                             const w = { ...MZV.WEAPONS.machinegun, damage: 10, range: 800, speed: 1080, spread: .035, barrels: 1 };
                             const ang = a + (Math.random() - .5) * w.spread;
+                            h.muzzleUntil = this.s.elapsed + .055;
+                            h.gunAngle = a;
                             this.s.projectiles.push(new MZV.Projectile(h.x, h.y, Math.cos(ang) * w.speed, Math.sin(ang) * w.speed, w.range / w.speed, w, null, 'support'));
                         }
                         if (this.s.elapsed >= h.nextRocket) {
@@ -1906,19 +2580,16 @@ var MZV;
             return out;
         }
         targetFor(z) {
-            const candidates = [...this.s.players.filter(p => p.alive && !p.out)];
+            let best = null, bestD2 = Infinity;
+            for (const q of this.s.players) {
+                if (!q.alive || q.out) continue;
+                const dx = q.x - z.x, dy = q.y - z.y, d2 = dx * dx + dy * dy;
+                if (d2 < bestD2) { best = q; bestD2 = d2; }
+            }
             const r = this.s.reinforcement;
-            if (r && r.alive && r.state !== 'recovering' && r.state !== 'exiting')
-                candidates.push(r);
-            if (!candidates.length)
-                return null;
-            let best = candidates[0], bd = Math.hypot(best.x - z.x, best.y - z.y);
-            for (let i = 1; i < candidates.length; i++) {
-                const q = candidates[i], d = Math.hypot(q.x - z.x, q.y - z.y);
-                if (d < bd) {
-                    best = q;
-                    bd = d;
-                }
+            if (r && r.alive && r.state !== 'recovering' && r.state !== 'exiting') {
+                const dx = r.x - z.x, dy = r.y - z.y, d2 = dx * dx + dy * dy;
+                if (d2 < bestD2) best = r;
             }
             return best;
         }
@@ -1980,23 +2651,94 @@ var MZV;
                 z.attackCooldown = a.cooldown;
             }
         }
+        bossSpecialKind(z) {
+            if (!z.isBoss || z.variant === 'shadowClone') return null;
+            if (z.variant === 'shadowDancer') return 'shadowNova';
+            if (z.variant === 'yellowThriller') return 'danceShockwave';
+            if (z.variant === 'blackYellowThriller') return 'blackoutStep';
+            if (z.variant === 'thrillerFinal') {
+                if (z.form === 'red') return 'redShockwave';
+                if (z.form === 'blackYellow') return 'blackoutStep';
+                if (z.form === 'dual') return (z.specialCycle++ % 2) ? 'blackoutStep' : 'redShockwave';
+                if (z.form === 'werewolf') return 'werewolfPounce';
+            }
+            if (z.bossName === 'GRAVEDIGGER BRUTE') return 'graveSlam';
+            if (z.type === 'powerBoss' && this.s.mission === 'thriller') return 'bruteRush';
+            return null;
+        }
+        startBossSpecial(z, t, d) {
+            if (!z.isBoss || z.specialAttack || z.specialCooldown > 0 || z.motionState !== 'move') return false;
+            if (d < 70 || d > 560) return false;
+            const kind = this.bossSpecialKind(z); if (!kind) return false;
+            z.specialAttack = kind; z.specialDidHit = false; z.specialStartedAt = this.s.elapsed;
+            z.specialTargetX = t.x; z.specialTargetY = t.y; z.vx = 0; z.vy = 0;
+            const timings = {
+                graveSlam:[.78,1.18], danceShockwave:[.66,1.05], redShockwave:[.58,.98],
+                shadowNova:[.48,.90], blackoutStep:[.54,.92], werewolfPounce:[.62,1.03], bruteRush:[.52,.94]
+            };
+            const tm=timings[kind]||[.6,1.0]; z.specialHitAt=this.s.elapsed+tm[0]; z.specialEndAt=this.s.elapsed+tm[1];
+            const labels={graveSlam:'⚰ GRAVE SLAM',danceShockwave:'🟡 DANCE SHOCKWAVE',redShockwave:'🔴 RED SHOCKWAVE',shadowNova:'🌑 SHADOW NOVA',blackoutStep:'⬛ BLACKOUT STEP',werewolfPounce:'🐺 WEREWOLF POUNCE',bruteRush:'💥 BRUTE RUSH'};
+            this.notify(`${labels[kind]||'⚠ SPECIAL'} · ESQUIVA!`);
+            return true;
+        }
+        damagePlayersInRadius(x,y,r,dmg) {
+            for (const p of this.s.players) if (p.alive && !p.out && Math.hypot(p.x-x,p.y-y)<=r+p.radius) this.hitTarget(p,dmg);
+            const rr=this.s.reinforcement; if(rr&&rr.alive&&rr.state!=='recovering'&&Math.hypot(rr.x-x,rr.y-y)<=r+rr.radius)this.hitTarget(rr,dmg*.75);
+        }
+        spawnBossAdds(z,count,fast=false) {
+            for(let i=0;i<count;i++){
+                const a=Math.PI*2*i/count+MZV.rand(-.18,.18),dist=MZV.rand(95,180);
+                const e=new MZV.Enemy(fast||Math.random()<.58?'runner':'normal',MZV.clamp(z.x+Math.cos(a)*dist,30,MZV.WORLD.width-30),MZV.clamp(z.y+Math.sin(a)*dist,30,MZV.WORLD.height-30),this.s.level,true,this.s.mode==='single');
+                if(z.variant==='shadowDancer'){e.variant='shadowClone';e.hp=e.maxHp=Math.max(80,120+this.s.level*4);e.baseSpeed*=1.2;e.speed=e.baseSpeed;}
+                this.s.enemies.push(e);
+            }
+        }
+        updateBossSpecial(z) {
+            if (!z.specialAttack) return false;
+            const kind=z.specialAttack, now=this.s.elapsed;
+            if (!z.specialDidHit && now>=z.specialHitAt) {
+                z.specialDidHit=true;
+                if(kind==='graveSlam'){
+                    this.damagePlayersInRadius(z.x,z.y,210,z.damage*1.25); this.spawnBossAdds(z,4,false); this.s.lightningAlpha=Math.max(this.s.lightningAlpha||0,.35);
+                } else if(kind==='danceShockwave'){
+                    this.damagePlayersInRadius(z.x,z.y,225,z.damage*1.05); this.spawnBossAdds(z,4,true);
+                } else if(kind==='redShockwave'){
+                    this.damagePlayersInRadius(z.x,z.y,250,z.damage*1.20); this.spawnBossAdds(z,z.variant==='thrillerFinal'?6:4,true); this.s.lightningAlpha=Math.max(this.s.lightningAlpha||0,.5);
+                } else if(kind==='shadowNova'){
+                    this.spawnBossAdds(z,6,true); const t=this.targetFor(z); if(t){z.x=MZV.clamp(t.x+MZV.rand(-190,190),50,MZV.WORLD.width-50);z.y=MZV.clamp(t.y+MZV.rand(-190,190),50,MZV.WORLD.height-50);} this.damagePlayersInRadius(z.x,z.y,145,z.damage*.9);
+                } else if(kind==='blackoutStep'){
+                    const t=this.targetFor(z); if(t){const ang=Math.atan2(t.y-z.y,t.x-z.x);z.x=MZV.clamp(t.x-Math.cos(ang)*95,50,MZV.WORLD.width-50);z.y=MZV.clamp(t.y-Math.sin(ang)*95,50,MZV.WORLD.height-50);} this.damagePlayersInRadius(z.x,z.y,135,z.damage*1.15); this.spawnBossAdds(z,5,true); this.s.lightningAlpha=Math.max(this.s.lightningAlpha||0,.7);
+                } else if(kind==='werewolfPounce'){
+                    z.x=MZV.clamp(z.specialTargetX,55,MZV.WORLD.width-55);z.y=MZV.clamp(z.specialTargetY,55,MZV.WORLD.height-55);this.damagePlayersInRadius(z.x,z.y,175,z.damage*1.35);this.spawnBossAdds(z,7,true);this.s.lightningAlpha=1;
+                } else if(kind==='bruteRush'){
+                    const t=this.targetFor(z);if(t){const dx=t.x-z.x,dy=t.y-z.y,n=Math.hypot(dx,dy)||1;z.x=MZV.clamp(z.x+dx/n*150,30,MZV.WORLD.width-30);z.y=MZV.clamp(z.y+dy/n*150,30,MZV.WORLD.height-30);}this.damagePlayersInRadius(z.x,z.y,120,z.damage*1.1);
+                }
+            }
+            if(now>=z.specialEndAt){
+                z.specialAttack=null;z.specialDidHit=false;
+                const base=z.form==='werewolf'?2.15:z.form==='dual'?2.5:z.variant==='shadowDancer'?2.7:z.variant==='yellowThriller'?3.2:3.6;
+                z.specialCooldown=base*(this.s.carnageActive?.78:1);
+                return false;
+            }
+            return true;
+        }
         separation(z) {
             let x = 0, y = 0, count = 0;
-            const range = z.type === 'tank' || z.type === 'powerBoss' ? 70 : 52;
-            for (const q of this.neighbours(z)) {
-                const dx = z.x - q.x, dy = z.y - q.y, d2 = dx * dx + dy * dy;
-                if (d2 < 4 || d2 > range * range)
-                    continue;
-                const d = Math.sqrt(d2);
-                const strength = Math.min(.34, (range - d) / range * .34);
-                x += dx / d * strength;
-                y += dy / d * strength;
-                count++;
+            const range = z.type === 'tank' || z.type === 'powerBoss' ? 70 : 52, range2 = range * range;
+            const cx = Math.floor(z.x / this.cellSize), cy = Math.floor(z.y / this.cellSize);
+            for (let oy = -1; oy <= 1; oy++) for (let ox = -1; ox <= 1; ox++) {
+                const bucket = this.grid.get(`${cx + ox},${cy + oy}`);
+                if (!bucket) continue;
+                for (const q of bucket) {
+                    if (q === z) continue;
+                    const dx = z.x - q.x, dy = z.y - q.y, d2 = dx * dx + dy * dy;
+                    if (d2 < 4 || d2 > range2) continue;
+                    const d = Math.sqrt(d2);
+                    const strength = Math.min(.34, (range - d) / range * .34);
+                    x += dx / d * strength; y += dy / d * strength; count++;
+                }
             }
-            if (count) {
-                x /= count;
-                y /= count;
-            }
+            if (count) { x /= count; y /= count; }
             return { x, y };
         }
         startVampireDash(z, t, d) {
@@ -2033,8 +2775,8 @@ var MZV;
         updateNocturnus(z, t, dt) {
             const hpRatio = z.hp / z.maxHp;
             z.phase = hpRatio > .66 ? 1 : hpRatio > .33 ? 2 : 3;
-            z.teleportCooldown -= dt;
-            z.summonCooldown -= dt;
+            z.teleportCooldown -= dt * (this.s.carnageActive ? 1.18 : 1);
+            z.summonCooldown -= dt * (this.s.carnageActive ? 1.25 : 1);
             if (z.motionState === 'teleport_out') {
                 if (this.s.elapsed >= z.teleportPhaseEnd) {
                     z.x = z.teleportTargetX;
@@ -2126,8 +2868,9 @@ var MZV;
                     continue;
                 z.prevX = z.x;
                 z.prevY = z.y;
-                z.attackCooldown = Math.max(0, z.attackCooldown - dt);
+                z.attackCooldown = Math.max(0, z.attackCooldown - dt * (this.s.carnageActive ? 1.25 : 1));
                 z.dashCooldown = Math.max(0, z.dashCooldown - dt);
+                z.specialCooldown = Math.max(0, (z.specialCooldown || 0) - dt * (this.s.carnageActive ? 1.12 : 1));
                 const kbDecay = Math.exp(-dt * 7.5);
                 if (Math.abs(z.knockbackX) + Math.abs(z.knockbackY) > .5) {
                     z.x = MZV.clamp(z.x + z.knockbackX * dt, 20, MZV.WORLD.width - 20);
@@ -2156,7 +2899,9 @@ var MZV;
                     continue;
                 const dx = t.x - z.x, dy = t.y - z.y, d = Math.hypot(dx, dy) || 1;
                 this.setDirectionStable(z, dx, dy);
-                if (z.type === 'nocturnus' && this.updateNocturnus(z, t, dt))
+                if (this.updateBossSpecial(z)) continue;
+                if (this.startBossSpecial(z, t, d)) continue;
+                if (z.type === 'nocturnus' && z.variant !== 'thrillerFinal' && this.updateNocturnus(z, t, dt))
                     continue;
                 if (z.motionState === 'dash') {
                     if (this.s.elapsed < z.dashUntil) {
@@ -2164,8 +2909,9 @@ var MZV;
                         z.vx = z.dashX;
                         z.vy = z.dashY;
                         this.setDirectionStable(z, z.vx, z.vy);
-                        z.x = MZV.clamp(z.x + z.vx * z.baseSpeed * mult * dt, 20, MZV.WORLD.width - 20);
-                        z.y = MZV.clamp(z.y + z.vy * z.baseSpeed * mult * dt, 20, MZV.WORLD.height - 20);
+                        const carnageSpeed = this.s.carnageActive ? 1.15 : 1;
+                        z.x = MZV.clamp(z.x + z.vx * z.baseSpeed * mult * carnageSpeed * dt, 20, MZV.WORLD.width - 20);
+                        z.y = MZV.clamp(z.y + z.vy * z.baseSpeed * mult * carnageSpeed * dt, 20, MZV.WORLD.height - 20);
                         continue;
                     }
                     z.motionState = 'move';
@@ -2182,8 +2928,9 @@ var MZV;
                 z.vy += (desired.vy - z.vy) * smooth;
                 const vn = Math.hypot(z.vx, z.vy) || 1;
                 const mvx = z.vx / vn, mvy = z.vy / vn;
-                z.x = MZV.clamp(z.x + mvx * z.baseSpeed * desired.speedMul * dt, 20, MZV.WORLD.width - 20);
-                z.y = MZV.clamp(z.y + mvy * z.baseSpeed * desired.speedMul * dt, 20, MZV.WORLD.height - 20);
+                const carnageSpeed = this.s.carnageActive ? 1.15 : 1;
+                z.x = MZV.clamp(z.x + mvx * z.baseSpeed * desired.speedMul * carnageSpeed * dt, 20, MZV.WORLD.width - 20);
+                z.y = MZV.clamp(z.y + mvy * z.baseSpeed * desired.speedMul * carnageSpeed * dt, 20, MZV.WORLD.height - 20);
             }
         }
     }
@@ -2192,12 +2939,13 @@ var MZV;
 var MZV;
 (function (MZV) {
     class LootSystem {
-        constructor(s, audio, notify) {
+        constructor(s, audio, notify, rage) {
             this.s = s;
             this.audio = audio;
             this.notify = notify;
+            this.rage = rage;
         }
-        update(dt) { this.spawnMilestones(); this.updateChests(dt); this.updatePickups(dt); }
+        update(dt) { this.spawnMilestones(); this.spawnMysteryForLevel(); this.updateChests(dt); this.trimChestOverflow(); this.updatePickups(dt); }
         spawnMilestones() {
             while (this.s.progressKills >= this.s.nextCampfireKill) {
                 const p = this.rewardPos();
@@ -2205,13 +2953,17 @@ var MZV;
                 this.s.nextCampfireKill += 10;
             }
             while (this.s.progressKills >= this.s.nextNormalChestKill) {
-                const p = this.rewardPos();
-                this.s.chests.push(new MZV.Chest('normal', this.rarity(false), p.x, p.y));
-                this.s.nextNormalChestKill += 10;
+                if (this.s.chests.filter(c => !c.opened && c.type === 'normal').length < 3) {
+                    const p = this.rewardPos();
+                    this.s.chests.push(new MZV.Chest('normal', this.rarity(false), p.x, p.y));
+                }
+                this.s.nextNormalChestKill += 20;
             }
             while (this.s.progressKills >= this.s.nextTacticalKill) {
-                const p = this.rewardPos();
-                this.s.chests.push(new MZV.Chest('tactical', this.rarity(true), p.x, p.y));
+                if (this.s.chests.filter(c => !c.opened && c.type === 'tactical').length < 2) {
+                    const p = this.rewardPos();
+                    this.s.chests.push(new MZV.Chest('tactical', this.rarity(true), p.x, p.y));
+                }
                 this.s.nextTacticalKill += 75;
             }
             const milestone = Math.floor(this.s.progressKills / MZV.RULES.overdriveEveryKills);
@@ -2221,13 +2973,52 @@ var MZV;
                 this.notify('🔥 WEAPON OVERDRIVE · 60s · +cadência +velocidade +dano');
             }
         }
+        spawnMysteryForLevel() {
+            const s=this.s, level=s.level;
+            if (level < 7 || level % MZV.RULES.mysteryEveryLevels !== 0 || s.mysterySpawnedLevels.has(level)) return;
+            if (s.chests.some(c=>!c.opened&&c.type==='mystery')) return;
+            s.mysterySpawnedLevels.add(level);
+            const p=this.mysteryPos();
+            let reward = s.mysteryLifeLevels.has(level) ? 'extraLife' : (Math.random()<.22 ? 'rampage' : 'rage');
+            if (level===49 && Math.random()<.42) reward='extraLife';
+            const c=new MZV.Chest('mystery','mystery',p.x,p.y,reward);
+            s.chests.push(c);
+            this.guardMystery(c);
+            this.audio.play('tactical', .42);
+            this.notify(`❓ MYSTERY CRATE · NÍVEL ${level} · 26s PARA A APANHAR · RECOMPENSA DESCONHECIDA`);
+        }
+        mysteryPos() {
+            const a=this.s.players.filter(p=>p.alive&&!p.out), cx=a.reduce((q,p)=>q+p.x,0)/(a.length||1), cy=a.reduce((q,p)=>q+p.y,0)/(a.length||1), ang=Math.random()*Math.PI*2, d=MZV.rand(430,620);
+            return {x:MZV.clamp(cx+Math.cos(ang)*d,80,MZV.WORLD.width-80),y:MZV.clamp(cy+Math.sin(ang)*d,80,MZV.WORLD.height-80)};
+        }
+        guardMystery(c) {
+            const count=Math.min(12,6+Math.floor(this.s.level/10));
+            for(let i=0;i<count;i++){const a=Math.PI*2*i/count+Math.random()*.35,d=MZV.rand(75,145),roll=Math.random();const type=this.s.level>=20&&roll<.18?'commander':roll<.48?'runner':roll<.70?'tank':'normal';const z=new MZV.Enemy(type,MZV.clamp(c.x+Math.cos(a)*d,30,MZV.WORLD.width-30),MZV.clamp(c.y+Math.sin(a)*d,30,MZV.WORLD.height-30),this.s.level,false,this.s.mode==='single');z.hp*=1.12;this.s.enemies.push(z);}
+        }
+        mysteryReward(p,c) {
+            let reward=c.specialReward||'rage';
+            if (reward==='extraLife') {
+                p.extraLives=(p.extraLives||0)+1;
+                this.audio.play('revive', .78);
+                this.notify(`❓❤️ SECOND CHANCE! · ${p.name.toUpperCase()} GANHOU +1 VIDA EXTRA`);
+                return;
+            }
+            if (reward==='rampage') { this.rage.startRampage(); return; }
+            const result=this.rage.startFromCrate();
+            if(result==='rampage') this.notify('❓⚠ A CAIXA ERA RAIVA... MAS JÁ ESTAVAS EM RAIVA · RAMPAGE!');
+        }
         rarity(tactical) { const r = Math.random(); return tactical ? (r < .35 ? 'epic' : 'rare') : (r < .07 ? 'epic' : r < .32 ? 'rare' : 'common'); }
         rewardPos() { const a = this.s.players.filter(p => p.alive && !p.out); const cx = a.reduce((q, p) => q + p.x, 0) / (a.length || 1), cy = a.reduce((q, p) => q + p.y, 0) / (a.length || 1), ang = Math.random() * Math.PI * 2, d = MZV.rand(190, 360); return { x: MZV.clamp(cx + Math.cos(ang) * d, 70, MZV.WORLD.width - 70), y: MZV.clamp(cy + Math.sin(ang) * d, 70, MZV.WORLD.height - 70) }; }
         updateChests(dt) {
             for (const c of this.s.chests) {
                 if (c.opened)
                     continue;
-                c.required = MZV.SETTINGS.chestSeconds();
+                c.life -= dt;
+                if (c.life <= 0) {
+                    c.opened = true;
+                    continue;
+                }
+                if (c.type !== 'mystery') c.required = MZV.SETTINGS.chestSeconds();
                 const touch = this.s.players.filter(p => p.alive && !p.out && Math.hypot(p.x - c.x, p.y - c.y) < p.radius + c.radius + 8);
                 if (!touch.length)
                     continue;
@@ -2236,7 +3027,11 @@ var MZV;
                     c.opened = true;
                     const order = MZV.SETTINGS.current.weaponOrder;
                     const receiver = touch.sort((a, b) => order.indexOf(a.weaponId) - order.indexOf(b.weaponId))[0];
-                    if (c.type === 'normal') {
+                    if (c.type === 'mystery') {
+                        this.audio.play('tactical', .68);
+                        this.mysteryReward(receiver,c);
+                    }
+                    else if (c.type === 'normal') {
                         this.audio.play('chest', .45);
                         this.upgradeWeapon(receiver, c.rarity);
                     }
@@ -2250,6 +3045,18 @@ var MZV;
                     }
                 }
                 break;
+            }
+            this.s.chests = this.s.chests.filter(c => !c.opened);
+        }
+        trimChestOverflow() {
+            const limits = { normal: 3, tactical: 2, special: 1, mystery: 1 };
+            for (const type of ['normal', 'tactical', 'special', 'mystery']) {
+                let active = this.s.chests.filter(c => !c.opened && c.type === type);
+                while (active.length > limits[type]) {
+                    const candidate = active.find(c => c.progress <= 0) || active[0];
+                    candidate.opened = true;
+                    active = this.s.chests.filter(c => !c.opened && c.type === type);
+                }
             }
             this.s.chests = this.s.chests.filter(c => !c.opened);
         }
@@ -2412,7 +3219,10 @@ var MZV;
             this.zoom = 1;
         }
         resize() {
-            const dprCap = this.mobileLayout() ? 1.35 : 2;
+            const mobile = this.mobileLayout();
+            // CSS scale stays identical to desktop. Only backing-store density is capped on mobile
+            // to avoid wasting fill-rate on 2x/3x phone displays during 200-enemy Carnage scenes.
+            const dprCap = mobile ? 1.25 : 2;
             const dpr = Math.min(dprCap, devicePixelRatio || 1), r = this.canvas.getBoundingClientRect();
             const width = Math.max(1, Math.round(r.width)), height = Math.max(1, Math.round(r.height));
             this.canvas.width = Math.floor(width * dpr);
@@ -2422,14 +3232,14 @@ var MZV;
         mobileLayout() { return document.documentElement.classList.contains('touch-device'); }
         cameraProfile() {
             const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
-            if (!this.mobileLayout())
-                return { zoom: 1, focusX: w / 2, focusY: h / 2 };
-            const landscape = w >= h;
-            const zoom = 1;
-            const safeTop = landscape ? 42 : 48;
-            const safeBottom = landscape ? 104 : 126;
-            const usableBottom = Math.max(safeTop + 80, h - safeBottom);
-            return { zoom, focusX: w / 2, focusY: (safeTop + usableBottom) / 2 };
+            // Mobile uses the exact same world-to-CSS-pixel scale as browser/desktop.
+            // Touch controls are overlays; they never zoom the map in.
+            return { zoom: 1, focusX: w / 2, focusY: h / 2 };
+        }
+        isVisible(x, y, margin = 90) {
+            const vw = this.canvas.clientWidth / this.zoom, vh = this.canvas.clientHeight / this.zoom;
+            return x >= this.s.camera.x - margin && x <= this.s.camera.x + vw + margin &&
+                y >= this.s.camera.y - margin && y <= this.s.camera.y + vh + margin;
         }
         camera() {
             const alive = this.s.players.filter(p => p.alive && !p.out);
@@ -2452,6 +3262,7 @@ var MZV;
             this.drawSams();
             this.drawProjectiles();
             this.drawExplosions();
+            this.drawRescueNpc();
             this.drawEnemies();
             this.drawPlayers();
             this.drawReinforcement();
@@ -2461,15 +3272,11 @@ var MZV;
             this.drawRageHud();
             this.drawRevive();
             this.drawThrillerOverlay();
+            this.drawCarnageOverlay();
         }
         asset(key) { const i = this.assets.get(key); return i && i.complete && i.naturalWidth > 0 ? i : null; }
-        visibleOnMobile(x, y, padding = 80) {
-            if (!this.mobileLayout())
-                return true;
-            const cam = this.s.camera, width = this.canvas.clientWidth / this.zoom, height = this.canvas.clientHeight / this.zoom;
-            return x + padding >= cam.x && x - padding <= cam.x + width && y + padding >= cam.y && y - padding <= cam.y + height;
-        }
         drawCentered(key, x, y, height, alpha = 1) {
+            if (!this.isVisible(x, y, height + 90)) return true;
             const c = this.ctx, img = this.asset(key);
             if (!img)
                 return false;
@@ -2481,6 +3288,7 @@ var MZV;
             return true;
         }
         drawRotated(key, x, y, angle, height, forward = 0, alpha = 1) {
+            if (!this.isVisible(x, y, height + 110)) return true;
             const c = this.ctx, img = this.asset(key);
             if (!img)
                 return false;
@@ -2501,7 +3309,14 @@ var MZV;
             if (bg) {
                 c.save();
                 c.globalAlpha = .78;
-                c.drawImage(bg, -cam.x * zoom, -cam.y * zoom, MZV.WORLD.width * zoom, MZV.WORLD.height * zoom);
+                // Draw only the visible source rectangle instead of scaling the entire world image every frame.
+                const visibleW = Math.min(MZV.WORLD.width - cam.x, w / zoom);
+                const visibleH = Math.min(MZV.WORLD.height - cam.y, h / zoom);
+                const sx = cam.x / MZV.WORLD.width * bg.naturalWidth;
+                const sy = cam.y / MZV.WORLD.height * bg.naturalHeight;
+                const sw = visibleW / MZV.WORLD.width * bg.naturalWidth;
+                const sh = visibleH / MZV.WORLD.height * bg.naturalHeight;
+                c.drawImage(bg, sx, sy, sw, sh, 0, 0, visibleW * zoom, visibleH * zoom);
                 c.fillStyle = 'rgba(255,246,218,.10)';
                 c.fillRect(0, 0, w, h);
                 c.restore();
@@ -2658,6 +3473,12 @@ var MZV;
         }
         enemyDirection(z) { return z.direction; }
         enemyHeight(z) {
+            if (z.variant === 'yellowThriller') return 132;
+            if (z.variant === 'blackYellowThriller') return 138;
+            if (z.variant === 'thrillerFinal' && z.form === 'werewolf') return 175;
+            if (z.variant === 'thrillerFinal') return 146;
+            if (z.variant === 'shadowDancer') return 112;
+            if (z.variant === 'shadowClone') return 86;
             if (z.type === 'runner')
                 return 72;
             if (z.type === 'tank')
@@ -2703,7 +3524,30 @@ var MZV;
             return true;
         }
         drawEnemyShape(z) {
-            const c = this.ctx, dir = this.enemyDirection(z), key = this.s.mission === 'thriller' ? `enemiesThriller.${z.type === 'nocturnus' ? 'powerBoss' : z.type}.${dir}` : `enemies.${z.type}.${dir}`, g = this.enemyGait(z);
+            const c = this.ctx, dir = this.enemyDirection(z);
+            let key;
+            if (z.variant === 'yellowThriller') key=`bosses.yellowThriller.${dir}`;
+            else if (z.variant === 'blackYellowThriller') key=`bosses.blackYellowThriller.${dir}`;
+            else if (z.variant === 'thrillerFinal') {
+                const form=z.form||'red';
+                if(form==='werewolf') key=`bosses.werewolfThriller.${dir}`;
+                else if(form==='blackYellow') key=`bosses.blackYellowThriller.${dir}`;
+                else if(form==='dual') key=(Math.floor(this.s.elapsed*5)%2===0)?`bosses.redThriller.${dir}`:`bosses.blackYellowThriller.${dir}`;
+                else key=`bosses.redThriller.${dir}`;
+            }
+            else if (z.variant === 'shadowDancer' || z.variant === 'shadowClone') key=`bosses.shadowDancer.${dir}`;
+            else key=this.s.mission === 'thriller' ? `enemiesThriller.${z.type === 'nocturnus' ? 'powerBoss' : z.type}.${dir}` : `enemies.${z.type}.${dir}`;
+            const g = this.enemyGait(z);
+            if(z.specialAttack){
+                const now=this.s.elapsed, remain=Math.max(.001,z.specialHitAt-z.specialStartedAt), p=MZV.clamp((now-z.specialStartedAt)/remain,0,1);
+                c.save();c.lineWidth=4;
+                const danger=z.specialAttack==='werewolfPounce'?'#ff3b30':z.specialAttack==='shadowNova'?'#8d68ff':z.specialAttack==='blackoutStep'?'#ffd84d':'#ff5a3d';
+                c.strokeStyle=danger;c.globalAlpha=.35+.55*p;c.setLineDash([10,7]);
+                const rr=z.specialAttack==='graveSlam'?210:z.specialAttack==='danceShockwave'?225:z.specialAttack==='redShockwave'?250:z.specialAttack==='werewolfPounce'?175:145;
+                if(z.specialAttack==='werewolfPounce'){c.beginPath();c.arc(z.specialTargetX,z.specialTargetY,rr,0,Math.PI*2);c.stroke();}
+                else{c.beginPath();c.arc(z.x,z.y,rr*(.58+.42*p),0,Math.PI*2);c.stroke();}
+                c.setLineDash([]);c.font='900 12px Segoe UI';c.textAlign='center';c.fillStyle=danger;c.fillText((z.specialAttack||'SPECIAL').replace(/([A-Z])/g,' $1').toUpperCase(),z.x,z.y-this.enemyHeight(z)/2-45);c.restore();
+            }
             const moving = Math.abs(z.vx) + Math.abs(z.vy) > .05 && z.motionState === 'move';
             const phase = this.s.elapsed * g.freq + z.motionSeed;
             let bob = moving ? Math.sin(phase) * g.amp : 0;
@@ -2786,22 +3630,57 @@ var MZV;
             c.arc(z.x + ox, z.y + oy, z.radius, 0, Math.PI * 2);
             c.fill();
         }
+        drawRescueNpc() {
+            const n=this.s.rescueNpc;const saved=!!(n&& !n.active && (n.savedUntil||0)>this.s.elapsed);if(!n||(!n.active&&!saved))return;if(!this.isVisible(n.x,n.y,150))return;const c=this.ctx;
+            const pulse=.5+.5*Math.sin(this.s.elapsed*7);
+            c.save();
+            c.strokeStyle=saved?`rgba(96,255,165,${.55+.35*pulse})`:`rgba(255,226,80,${.55+.35*pulse})`;c.lineWidth=4;c.beginPath();c.arc(n.x,n.y,55+5*pulse,0,Math.PI*2);c.stroke();
+
+            let key=saved?'npc.rescueWomanV2.relief':'npc.rescueWomanV2.idle',flip=false,height=112;
+            if(!saved && n.state==='panic')key='npc.rescueWomanV2.panic';
+            else if(!saved && n.state==='cower')key='npc.rescueWomanV2.cower';
+            else if(!saved && n.state==='help')key='npc.rescueWomanV2.help';
+            else if(!saved && n.state==='run'){
+                if(n.direction==='up')key='npc.rescueWomanV2.run_up';
+                else if(n.direction==='down')key='npc.rescueWomanV2.run_down';
+                else {key='npc.rescueWomanV2.run_right';flip=n.direction==='left';}
+            }
+            const img=this.asset(key);
+            if(img){
+                const w=height*(img.naturalWidth/img.naturalHeight);
+                c.save();c.translate(n.x,n.y);if(flip)c.scale(-1,1);
+                c.drawImage(img,-w/2,-height/2,w,height);c.restore();
+            }else if(!this.drawCentered(`npc.rescueWoman.${n.direction||'down'}`,n.x,n.y,104)){
+                c.fillStyle='#2982b1';c.fillRect(n.x-13,n.y-27,26,54);
+            }
+
+            c.textAlign='center';c.font='900 12px Segoe UI';c.fillStyle='#fff';
+            const tag=saved?'SALVA!':n.state==='panic'?'ASSUSTADA!':n.state==='cower'?'CERCADA!':'SALVAR';
+            c.fillText(tag,n.x,n.y-69);
+            if(!saved){
+                c.fillStyle='rgba(0,0,0,.72)';c.fillRect(n.x-48,n.y+61,96,8);c.fillStyle='#e04b57';c.fillRect(n.x-48,n.y+61,96*Math.max(0,n.hp/n.maxHp),8);
+                c.fillStyle='rgba(0,0,0,.72)';c.fillRect(n.x-48,n.y+73,96,6);c.fillStyle='#ffe24f';c.fillRect(n.x-48,n.y+73,96*Math.min(1,n.progress/n.required),6);
+            }
+            c.restore();
+        }
         drawEnemies() {
             const c = this.ctx;
             for (const z of this.s.enemies) {
-                if (!z.alive || !this.visibleOnMobile(z.x, z.y, 180))
+                if (!z.alive)
                     continue;
+                if (!this.isVisible(z.x, z.y, z.isBoss ? 260 : 125)) continue;
                 this.drawEnemyShape(z);
-                if (z.type === 'powerBoss' || z.type === 'nocturnus') {
-                    const bw = z.type === 'nocturnus' ? 160 : 140;
-                    c.fillStyle = 'rgba(0,0,0,.65)';
+                if (z.isBoss || z.type === 'powerBoss' || z.type === 'nocturnus') {
+                    const bw = z.type === 'nocturnus' ? 160 : 148;
+                    c.fillStyle = 'rgba(0,0,0,.68)';
                     c.fillRect(z.x - bw / 2, z.y - this.enemyHeight(z) / 2 - 20, bw, 9);
-                    c.fillStyle = z.type === 'nocturnus' ? '#d13d6c' : '#7cdb5b';
+                    c.fillStyle = z.variant === 'yellowThriller' ? '#f3d344' : z.variant === 'blackYellowThriller' ? '#e6b92d' : z.variant === 'thrillerFinal' ? (z.form==='werewolf'?'#ff6a2e':z.form==='blackYellow'?'#e6b92d':z.form==='dual'?'#ff496d':'#e53c4d') : z.variant === 'shadowDancer' ? '#765be8' : z.type === 'nocturnus' ? '#d13d6c' : '#7cdb5b';
                     c.fillRect(z.x - bw / 2, z.y - this.enemyHeight(z) / 2 - 20, bw * Math.max(0, z.hp / z.maxHp), 9);
-                    c.fillStyle = '#fff';
-                    c.font = '900 12px Segoe UI';
-                    c.textAlign = 'center';
-                    c.fillText(z.type === 'nocturnus' ? `${this.s.mission === 'thriller' ? 'THRILLER BOSS' : 'LORD NOCTURNUS'} · FASE ${z.phase}` : `${this.s.mission === 'thriller' ? 'THRILLER BOSS' : 'POWER BOSS'} · ${z.lives}/7 · FASE ${z.phase}`, z.x, z.y - this.enemyHeight(z) / 2 - 28);
+                    c.fillStyle = '#fff'; c.font = '900 12px Segoe UI'; c.textAlign = 'center';
+                    const formName=z.variant==='thrillerFinal'?(z.form==='werewolf'?'THRILLER WEREWOLF':z.form==='dual'?'THRILLER · DUAL FORM':z.form==='blackYellow'?'THRILLER · BLACK/YELLOW':'THRILLER · RED FORM'):null;
+                    const name=formName || z.bossName || (z.type==='nocturnus'?(this.s.mission==='thriller'?'THRILLER BOSS':'LORD NOCTURNUS'):'POWER BOSS');
+                    const lives=z.maxLives>1?` · ${z.lives}/${z.maxLives} VIDAS`:'';
+                    c.fillText(`${name}${lives} · FASE ${z.phase}`, z.x, z.y - this.enemyHeight(z) / 2 - 28);
                 }
             }
         }
@@ -2809,8 +3688,6 @@ var MZV;
         drawProjectiles() {
             const c = this.ctx;
             for (const b of this.s.projectiles) {
-                if (!this.visibleOnMobile(b.x, b.y, 40))
-                    continue;
                 const a = Math.atan2(b.vy, b.vx), key = `projectiles.${b.kind}`;
                 if (!this.drawRotated(key, b.x, b.y, a, this.projectileHeight(b.kind), -6)) {
                     c.save();
@@ -2825,8 +3702,7 @@ var MZV;
         drawExplosions() {
             const c = this.ctx;
             for (const e of this.s.explosions) {
-                if (!this.visibleOnMobile(e.x, e.y, Math.max(120, e.maxRadius)))
-                    continue;
+                if (!this.isVisible(e.x, e.y, e.maxRadius + 80)) continue;
                 const p = 1 - e.life / e.maxLife, r = e.maxRadius * p, key = r < 70 ? 'effects.explosion_small' : 'effects.explosion_large';
                 const img = this.asset(key);
                 if (img) {
@@ -2844,8 +3720,7 @@ var MZV;
                 }
             }
             for (const a of this.s.airstrikes) {
-                if (!this.visibleOnMobile(a.x, a.y, 160))
-                    continue;
+                if (!this.isVisible(a.x, a.y, 180)) continue;
                 if (!this.drawCentered('props.airstrike_target', a.x, a.y, 150, .72)) {
                     const p = .5 + .5 * Math.sin(this.s.elapsed * 10);
                     c.strokeStyle = `rgba(255,65,45,${.4 + .4 * p})`;
@@ -2857,6 +3732,7 @@ var MZV;
             }
         }
         chestAsset(b) {
+            if (b.type === 'mystery') return 'props.chest_epic_closed';
             if (b.type === 'special')
                 return 'props.chest_epic_closed';
             if (b.rarity === 'epic')
@@ -2868,9 +3744,8 @@ var MZV;
         drawChests() {
             const c = this.ctx;
             for (const b of this.s.chests) {
-                if (!this.visibleOnMobile(b.x, b.y, 100))
-                    continue;
-                const glow = b.rarity === 'epic' ? 'rgba(190,95,255,.38)' : b.rarity === 'rare' ? 'rgba(70,175,255,.28)' : 'rgba(255,215,110,.14)';
+                if (!this.isVisible(b.x, b.y, 110)) continue;
+                const glow = b.type === 'mystery' ? `rgba(255,214,72,${.30+.20*(.5+.5*Math.sin(this.s.elapsed*7))})` : b.rarity === 'epic' ? 'rgba(190,95,255,.38)' : b.rarity === 'rare' ? 'rgba(70,175,255,.28)' : 'rgba(255,215,110,.14)';
                 c.fillStyle = glow;
                 c.beginPath();
                 c.arc(b.x, b.y, b.radius + 20 + Math.sin(this.s.elapsed * 5) * 3, 0, Math.PI * 2);
@@ -2879,10 +3754,15 @@ var MZV;
                     c.fillStyle = b.type === 'tactical' ? '#536239' : '#8b592d';
                     c.fillRect(b.x - 28, b.y - 20, 56, 40);
                 }
-                c.fillStyle = b.type === 'special' ? '#ffe45f' : '#fff';
-                c.font = '900 10px Segoe UI';
-                c.textAlign = 'center';
-                c.fillText(b.type === 'special' ? '⭐ SPECIAL CRATE' : `${b.type === 'tactical' ? 'TACTICAL ' : ''}${b.rarity.toUpperCase()}`, b.x, b.y - 46);
+                if (b.type === 'mystery') {
+                    const pulse=.5+.5*Math.sin(this.s.elapsed*8);
+                    c.save();c.textAlign='center';c.font=`1000 ${Math.round(34+6*pulse)}px Segoe UI`;c.fillStyle='#fff3a1';c.shadowColor='#ffb900';c.shadowBlur=18;c.fillText('?',b.x,b.y+12);c.shadowBlur=0;c.font='1000 11px Segoe UI';c.fillStyle='#ffe45f';c.fillText('❓ MYSTERY CRATE',b.x,b.y-50);c.restore();
+                } else {
+                    c.fillStyle = b.type === 'special' ? '#ffe45f' : '#fff';
+                    c.font = '900 10px Segoe UI';
+                    c.textAlign = 'center';
+                    c.fillText(b.type === 'special' ? '⭐ SPECIAL CRATE' : `${b.type === 'tactical' ? 'TACTICAL ' : ''}${b.rarity.toUpperCase()}`, b.x, b.y - 46);
+                }
                 if (b.progress > 0) {
                     c.fillStyle = 'rgba(0,0,0,.62)';
                     c.fillRect(b.x - 36, b.y + 39, 72, 7);
@@ -2894,8 +3774,7 @@ var MZV;
         drawPickups() {
             const c = this.ctx;
             for (const p of this.s.pickups) {
-                if (!this.visibleOnMobile(p.x, p.y, 100))
-                    continue;
+                if (!this.isVisible(p.x, p.y, 105)) continue;
                 if (p.type === 'campfire') {
                     if (!this.drawCentered('props.campfire_heal', p.x, p.y, 92, .9))
                         this.drawCentered('props.campfire', p.x, p.y, 78);
@@ -2919,8 +3798,7 @@ var MZV;
         drawSams() {
             const c = this.ctx;
             for (const t of this.s.sams) {
-                if (!this.visibleOnMobile(t.x, t.y, 120))
-                    continue;
+                if (!this.isVisible(t.x, t.y, 120)) continue;
                 const key = this.s.elapsed + 0.15 >= t.nextShot ? 'props.sam_firing' : 'props.sam';
                 if (!this.drawCentered(key, t.x, t.y, 92)) {
                     c.save();
@@ -2936,90 +3814,64 @@ var MZV;
         drawHelicopters() {
             const c = this.ctx;
             for (const h of this.s.helicopters) {
-                if (!this.visibleOnMobile(h.x, h.y, 180))
-                    continue;
+                if (!this.isVisible(h.x, h.y, 260)) continue;
+                const frame=Math.floor(this.s.elapsed*11)%4;
+                const img=this.asset(`props.helicopter.frame${frame}`);
+                const bob=Math.sin(this.s.elapsed*5.2+h.x*.01)*2.2;
+
                 c.save();
-                c.translate(h.x, h.y);
-                // sombra
-                c.fillStyle = 'rgba(0,0,0,.22)';
-                c.beginPath();
-                c.ellipse(22, 28, 62, 22, .08, 0, Math.PI * 2);
-                c.fill();
-                // cauda
-                c.save();
-                c.rotate(h.angle);
-                c.fillStyle = '#475342';
-                c.fillRect(-66, -7, 65, 14);
-                c.fillStyle = '#2d352d';
-                c.fillRect(-75, -17, 18, 34);
+                // sombra separada do helicóptero para dar altura.
+                c.fillStyle='rgba(0,0,0,.24)';
+                c.beginPath();c.ellipse(h.x+20,h.y+35,58,20,.12,0,Math.PI*2);c.fill();
                 c.restore();
-                // fuselagem
-                c.fillStyle = '#53624b';
-                c.strokeStyle = '#222b25';
-                c.lineWidth = 3;
-                c.beginPath();
-                c.ellipse(4, 0, 43, 25, 0, 0, Math.PI * 2);
-                c.fill();
-                c.stroke();
-                c.fillStyle = '#26343a';
-                c.beginPath();
-                c.ellipse(25, 0, 18, 16, 0, 0, Math.PI * 2);
-                c.fill();
-                c.fillStyle = '#92dded';
-                c.globalAlpha = .6;
-                c.beginPath();
-                c.ellipse(28, -3, 11, 9, 0, 0, Math.PI * 2);
-                c.fill();
-                c.globalAlpha = 1;
-                // rotor principal
-                const spin = this.s.elapsed * 15;
-                c.save();
-                c.rotate(spin);
-                c.strokeStyle = 'rgba(218,232,230,.62)';
-                c.lineWidth = 4;
-                c.beginPath();
-                c.moveTo(-70, 0);
-                c.lineTo(70, 0);
-                c.moveTo(0, -70);
-                c.lineTo(0, 70);
-                c.stroke();
-                c.restore();
-                c.fillStyle = '#1d2522';
-                c.beginPath();
-                c.arc(0, 0, 7, 0, Math.PI * 2);
-                c.fill();
-                // luz de apoio
-                c.fillStyle = '#ffcf4d';
-                c.beginPath();
-                c.arc(36, 2, 4, 0, Math.PI * 2);
-                c.fill();
-                c.restore();
+
+                if(img){
+                    const height=158,w=height*(img.naturalWidth/img.naturalHeight);
+                    c.save();
+                    c.translate(h.x,h.y+bob);
+                    // O asset aponta para baixo; compensação de 90° para acompanhar a trajectória.
+                    c.rotate((h.angle||0)-Math.PI/2);
+                    c.drawImage(img,-w/2,-height/2,w,height);
+                    c.restore();
+                }else{
+                    c.save();c.translate(h.x,h.y);c.fillStyle='#53624b';c.beginPath();c.ellipse(4,0,43,25,0,0,Math.PI*2);c.fill();c.restore();
+                }
+
+                // Muzzle flash curto durante as rajadas.
+                if((h.muzzleUntil||0)>this.s.elapsed){
+                    const a=h.gunAngle||h.angle||0;
+                    c.save();c.translate(h.x,h.y);c.rotate(a);
+                    const g=c.createRadialGradient(58,0,1,58,0,16);
+                    g.addColorStop(0,'rgba(255,255,220,.98)');g.addColorStop(.35,'rgba(255,188,55,.9)');g.addColorStop(1,'rgba(255,90,20,0)');
+                    c.fillStyle=g;c.beginPath();c.arc(58,0,16,0,Math.PI*2);c.fill();c.restore();
+                }
+
                 c.fillStyle = '#fff';
                 c.font = '900 11px Segoe UI';
                 c.textAlign = 'center';
-                c.fillText(`HELICOPTER SUPPORT · ${Math.max(0, Math.ceil(h.life))}s`, h.x, h.y - 54);
+                c.fillText(`HELICOPTER SUPPORT · ${Math.max(0, Math.ceil(h.life))}s`, h.x, h.y - 88);
             }
         }
         drawMiniMap() {
-            const mobile = this.mobileLayout();
-            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
-            const mw = mobile ? 104 : 170, mh = mobile ? 68 : 112;
-            const x = mobile ? Math.max(8, w - mw - 62) : w - mw - 14;
-            const y = mobile ? 8 : h - mh - 14, sx = mw / MZV.WORLD.width, sy = mh / MZV.WORLD.height;
+            if (this.mobileLayout())
+                return;
+            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight, mw = 170, mh = 112, x = w - mw - 14, y = h - mh - 14, sx = mw / MZV.WORLD.width, sy = mh / MZV.WORLD.height;
             c.fillStyle = 'rgba(10,14,16,.78)';
             c.fillRect(x, y, mw, mh);
             c.strokeStyle = 'rgba(255,255,255,.22)';
             c.strokeRect(x, y, mw, mh);
             for (const z of this.s.enemies) {
-                c.fillStyle = z.type === 'nocturnus' ? '#ff4f86' : z.type === 'powerBoss' ? '#86ff68' : z.type === 'vampire' ? '#e152a4' : '#9abf76';
+                c.fillStyle = z.variant === 'yellowThriller' ? '#ffe14d' : z.variant === 'blackYellowThriller' ? '#f2c33a' : z.variant === 'thrillerFinal' ? (z.form==='werewolf'?'#ff6a2e':'#ff3f62') : (z.variant === 'shadowDancer' || z.variant === 'shadowClone') ? '#8b6cff' : z.type === 'nocturnus' ? '#ff4f86' : z.type === 'powerBoss' ? '#86ff68' : z.type === 'vampire' ? '#e152a4' : '#9abf76';
                 c.fillRect(x + z.x * sx, y + z.y * sy, z.type === 'normal' ? 2 : 4, z.type === 'normal' ? 2 : 4);
             }
             for (const b of this.s.chests) {
-                if (b.type === 'special') {
-                    c.fillStyle = '#ffe44f';
+                if (b.type === 'special' || b.type === 'mystery') {
+                    c.fillStyle = b.type === 'mystery' ? '#fff3a1' : '#ffe44f';
                     c.fillRect(x + b.x * sx - 2, y + b.y * sy - 2, 5, 5);
                 }
             }
+            const rescue=this.s.rescueNpc;
+            if(rescue&&rescue.active){c.fillStyle='#ffe44f';c.beginPath();c.arc(x+rescue.x*sx,y+rescue.y*sy,5,0,Math.PI*2);c.fill();c.strokeStyle='#ff4f5d';c.lineWidth=1.5;c.stroke();}
             for (const h2 of this.s.helicopters) {
                 c.fillStyle = '#72ddff';
                 c.fillRect(x + h2.x * sx - 2, y + h2.y * sy - 2, 5, 5);
@@ -3047,27 +3899,29 @@ var MZV;
             }
         }
         drawRageHud() {
-            if (this.s.elapsed >= this.s.rageUntil)
-                return;
-            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
-            const pulse = .5 + .5 * Math.sin(this.s.elapsed * 6);
-            c.save();
-            c.textAlign = 'center';
-            c.font = `1000 ${Math.round(36 + 5 * pulse)}px Segoe UI`;
-            c.fillStyle = `rgba(255,231,65,${.45 + .45 * pulse})`;
-            c.shadowColor = '#ff9d00';
-            c.shadowBlur = 18;
-            c.fillText('MODO RAIVA', w / 2, 62);
-            c.shadowBlur = 0;
-            c.font = '900 15px Segoe UI';
-            c.fillStyle = '#fff';
-            const rr = this.s.reinforcement;
-            c.fillText(`${rr ? rr.name.toUpperCase() + ' REINFORCEMENT · ' : ''}SCORE ×2 · COMBO ×${Math.max(1, this.s.combo)} · RAGE KILLS ${this.s.rageKills}`, w / 2, 87);
-            c.restore();
+            if (this.s.elapsed >= this.s.rageUntil) return;
+            const c=this.ctx,w=this.canvas.clientWidth,pulse=.5+.5*Math.sin(this.s.elapsed*6),rampage=this.s.elapsed<this.s.rampageUntil;
+            c.save();c.textAlign='center';c.font=`1000 ${Math.round((rampage?43:36)+6*pulse)}px Segoe UI`;c.fillStyle=rampage?`rgba(255,79,35,${.55+.42*pulse})`:`rgba(255,231,65,${.45+.45*pulse})`;c.shadowColor=rampage?'#ff2400':'#ff9d00';c.shadowBlur=22;c.fillText(rampage?'RAMPAGE':'MODO RAIVA',w/2,62);c.shadowBlur=0;c.font='900 15px Segoe UI';c.fillStyle='#fff';const rr=this.s.reinforcement;c.fillText(`${rr?rr.name.toUpperCase()+' REINFORCEMENT · ':''}SCORE ×${rampage?3:2} · COMBO ×${Math.max(1,this.s.combo)} · ${rampage?'RAMPAGE':'RAGE'} KILLS ${rampage?this.s.rampageKills:this.s.rageKills}`,w/2,87);c.restore();
         }
         drawThrillerOverlay() {
             if (this.s.mission !== 'thriller') return;
             const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+            if (this.s.elapsed >= this.s.yellowApparitionStart && this.s.elapsed < this.s.yellowApparitionUntil) {
+                const dur=Math.max(.01,this.s.yellowApparitionUntil-this.s.yellowApparitionStart),p=MZV.clamp((this.s.elapsed-this.s.yellowApparitionStart)/dur,0,1);
+                const img=this.asset('bosses.yellowThriller.left');
+                const x=w+150-p*(w+330), y=h*.46+Math.sin(p*Math.PI*2)*18;
+                c.save();c.globalAlpha=Math.sin(Math.min(1,p)*Math.PI)*.95;
+                if(img){const hh=Math.min(190,h*.38),ww=hh*(img.naturalWidth/img.naturalHeight);c.drawImage(img,x-ww/2,y-hh/2,ww,hh);} 
+                c.strokeStyle=`rgba(255,225,70,${.25+.35*Math.sin(p*Math.PI)})`;c.lineWidth=3;c.beginPath();c.arc(x,y,62+8*Math.sin(p*8),0,Math.PI*2);c.stroke();
+                c.restore();
+            }
+            if (this.s.elapsed >= (this.s.werewolfScareStart||0) && this.s.elapsed < (this.s.werewolfScareUntil||0)) {
+                const dur=Math.max(.01,this.s.werewolfScareUntil-this.s.werewolfScareStart),p=MZV.clamp((this.s.elapsed-this.s.werewolfScareStart)/dur,0,1),alpha=Math.sin(p*Math.PI);
+                c.save();c.fillStyle=`rgba(0,0,0,${.16+.28*alpha})`;c.fillRect(0,0,w,h);
+                const img=this.asset(`bosses.werewolfThriller.down`);
+                if(img){const hh=Math.min(390,h*.72),ww=hh*(img.naturalWidth/img.naturalHeight);c.globalAlpha=.25+.75*alpha;c.drawImage(img,w*.5-ww/2,h*.5-hh/2,ww,hh);}
+                c.textAlign='center';c.shadowColor='#000';c.shadowBlur=22;c.font=`1000 ${Math.round(24+18*alpha)}px Segoe UI`;c.fillStyle=`rgba(255,92,48,${.5+.5*alpha})`;c.fillText('O BIG BOSS ESTÁ À TUA ESPERA',w*.5,h*.84);c.restore();
+            }
             if (this.s.scareUntil > this.s.elapsed) {
                 const total = 2.4, remain = this.s.scareUntil - this.s.elapsed, p = MZV.clamp(1 - remain / total, 0, 1), alpha = Math.sin(p * Math.PI) * .92;
                 c.save();
@@ -3082,6 +3936,51 @@ var MZV;
                 c.fillStyle=`rgba(224,232,255,${a})`; c.fillRect(0,0,w,h);
                 c.strokeStyle=`rgba(255,255,255,${Math.min(1,a*1.5)})`; c.lineWidth=2.5; c.beginPath();
                 let x=w*.18; c.moveTo(x,0); c.lineTo(x+18,h*.13); c.lineTo(x-7,h*.24); c.lineTo(x+21,h*.37); c.stroke();
+                c.restore();
+            }
+        }
+        drawCarnageOverlay() {
+            if (this.s.mission !== 'thriller' || !this.s.carnageActive)
+                return;
+            const c = this.ctx, w = this.canvas.clientWidth, h = this.canvas.clientHeight;
+            const pulse = .5 + .5 * Math.sin(this.s.elapsed * 5.4);
+            c.save();
+            const vignette = c.createRadialGradient(w * .5, h * .48, Math.min(w, h) * .12, w * .5, h * .48, Math.max(w, h) * .72);
+            vignette.addColorStop(0, 'rgba(120,0,10,0)');
+            vignette.addColorStop(.48, `rgba(155,0,14,${.045 + pulse * .025})`);
+            vignette.addColorStop(.78, `rgba(165,0,14,${.13 + pulse * .045})`);
+            vignette.addColorStop(1, `rgba(180,0,16,${.255 + pulse * .075})`);
+            c.fillStyle = vignette;
+            c.fillRect(0, 0, w, h);
+            c.fillStyle = `rgba(70,0,7,${.055 + pulse * .025})`;
+            c.fillRect(0, 0, w, h);
+            if (this.s.elapsed >= this.s.carnageTitleStart && this.s.elapsed < this.s.carnageTitleUntil) {
+                const duration = Math.max(.01, this.s.carnageTitleUntil - this.s.carnageTitleStart);
+                const p = MZV.clamp((this.s.elapsed - this.s.carnageTitleStart) / duration, 0, 1);
+                // Exactamente duas pulsações: duas expansões completas e desaparece.
+                const wave = .5 - .5 * Math.cos(p * Math.PI * 4);
+                const scale = 1 + wave * .22;
+                const fade = p > .78 ? (1 - p) / .22 : 1;
+                c.translate(w / 2, h * .44);
+                c.scale(scale, scale);
+                c.textAlign = 'center';
+                c.textBaseline = 'middle';
+                c.font = `1000 ${Math.round(Math.min(92, Math.max(48, w * .075)))}px Segoe UI`;
+                c.shadowColor = 'rgba(0,0,0,.95)';
+                c.shadowBlur = 30;
+                c.fillStyle = `rgba(205,20,32,${Math.max(0, fade)})`;
+                c.strokeStyle = `rgba(255,220,205,${Math.max(0, fade * .72)})`;
+                c.lineWidth = 2.5;
+                c.strokeText('CARNAGE', 0, 0);
+                c.fillText('CARNAGE', 0, 0);
+            }
+            c.restore();
+            if (this.s.elapsed < this.s.carnageFlashUntil) {
+                c.save();
+                const remain = Math.max(0, this.s.carnageFlashUntil - this.s.elapsed);
+                const a = Math.min(1, remain / .14);
+                c.fillStyle = `rgba(255,255,255,${.88 + .12 * a})`;
+                c.fillRect(0, 0, w, h);
                 c.restore();
             }
         }
@@ -3117,14 +4016,16 @@ var MZV;
             this.state = new MZV.GameState();
             this.input = new MZV.InputSystem();
             this.audio = new MZV.AudioSystem();
-            this.movement = new MZV.MovementSystem(this.input);
+            this.movement = new MZV.MovementSystem(this.input, this.state);
             this.revive = new MZV.ReviveSystem(this.state, this.audio, s => this.notify(s));
             this.combat = new MZV.CombatSystem(this.state, this.audio, s => this.notify(s));
-            this.loot = new MZV.LootSystem(this.state, this.audio, s => this.notify(s));
             this.horde = new MZV.HordeSystem(this.state, this.audio, s => this.notify(s));
             this.rage = new MZV.RageSystem(this.state, this.audio, s => this.notify(s), count => this.horde.spawnRageWave(count));
+            this.loot = new MZV.LootSystem(this.state, this.audio, s => this.notify(s), this.rage);
             this.enemyMotion = new MZV.EnemyMotionSystem(this.state, (target, damage) => target instanceof MZV.Player ? this.combat.damagePlayer(target, damage) : this.rage.damage(target, damage), s => this.notify(s));
             this.music = new MZV.MusicDirector(this.state, this.audio, this.horde, this.rage, () => this.combat.deployHelicopter(), s => this.notify(s));
+            this.carnage = new MZV.CarnageSystem(this.state, this.audio, this.horde, this.music, s => this.notify(s));
+            this.rescue = new MZV.RescueSystem(this.state, this.audio, s => this.notify(s));
             this.last = performance.now();
             this.toastUntil = 0;
             this.autoTest = false;
@@ -3133,6 +4034,8 @@ var MZV;
             this.pendingMode = 'single';
             this.pendingMission = 'deserto';
             this.settingsWasRunning = false;
+            this.lastBeaconLevel = 0;
+            this.levelBeaconTimer = 0;
             MZV.SETTINGS.load();
             this.combat.rageDamage = (r, d) => this.rage.damage(r, d);
             this.renderer = new MZV.Renderer(canvas, this.state, this.revive);
@@ -3140,6 +4043,9 @@ var MZV;
             this.touch = new MZV.TouchControls(this.input, () => { if (this.state.running)
                 this.combat.callAirstrike(); }, () => this.openSettings(), () => this.requestFullscreen());
             this.viewportTimer = 0;
+            this.orientationPaused = false;
+            this.nextHudAt = 0;
+            this.lastRenderedFrame = 0;
             this.handleViewportChange = () => this.syncViewport();
             addEventListener('resize', this.handleViewportChange);
             addEventListener('orientationchange', this.handleViewportChange);
@@ -3222,9 +4128,24 @@ var MZV;
             const width = Math.round(viewport?.width || innerWidth), height = Math.round(viewport?.height || innerHeight);
             document.documentElement.style.setProperty('--app-width', `${width}px`);
             document.documentElement.style.setProperty('--app-height', `${height}px`);
+            const portraitBlocked = !!this.touch?.enabled && height > width;
+            document.documentElement.classList.toggle('mobile-portrait-blocked', portraitBlocked);
+            const settingsOpen = !this.$('settingsOverlay')?.classList.contains('hidden');
+            if (portraitBlocked && this.state.running) {
+                this.orientationPaused = true;
+                this.state.running = false;
+                this.audio.pauseGameplayMusic();
+                this.touch.hide();
+            } else if (!portraitBlocked && this.orientationPaused && !this.state.gameOver && !settingsOpen) {
+                this.orientationPaused = false;
+                this.state.running = true;
+                this.last = performance.now();
+                this.audio.resumeGameplayMusic();
+                this.touch.show();
+            }
             requestAnimationFrame(() => this.renderer.resize());
             clearTimeout(this.viewportTimer);
-            this.viewportTimer = setTimeout(() => this.renderer.resize(), 220);
+            this.viewportTimer = setTimeout(() => this.renderer.resize(), 180);
         }
         updateFullscreenUi() {
             const button = this.$('touchFullscreen');
@@ -3282,6 +4203,8 @@ var MZV;
                 this.touch.show();
             }
             this.settingsWasRunning = false;
+            this.lastBeaconLevel = 0;
+            this.syncViewport();
         }
         saveSettings() {
             MZV.SETTINGS.save(this.readSettingsForm());
@@ -3289,8 +4212,69 @@ var MZV;
             this.$('settingsStatus').textContent = `GUARDADO · caixas ${MZV.SETTINGS.current.chestOpenSeconds}s · Rage a cada ${MZV.SETTINGS.current.rageEvery} níveis`;
             this.notify('⚙ DEFINIÇÕES GUARDADAS');
         }
-        showPanel(id) { for (const x of ['modeMenu', 'missionMenu', 'singleCharacterMenu', 'twoCharacterMenu'])
+        showPanel(id) { for (const x of ['modeMenu', 'missionMenu', 'bossBibleMenu', 'singleCharacterMenu', 'twoCharacterMenu'])
             this.$(x).classList.add('hidden'); this.$(id).classList.remove('hidden'); }
+        bossBibleEntries(mission) {
+            if (mission === 'thriller') return [
+                { level:'5', name:'YELLOW THRILLER', type:'APARIÇÃO', img:'assets/images/bosses/yellowThriller/down.png', desc:'Passa pelo ecrã, gargalhada e desaparece.', cls:'apparition' },
+                { level:'10', name:'POWER BOSS', type:'BOSS', img:'assets/images/enemies_thriller/powerBoss/down.png', desc:'Primeira parede de força da missão.' },
+                { level:'13', name:'SHADOW DANCER', type:'BOSS', img:'assets/images/bosses/shadowDancer/down.png', desc:'4 vidas · dash · teleport · clones-sombra.' },
+                { level:'15', name:'YELLOW THRILLER', type:'SUB-BOSS', img:'assets/images/bosses/yellowThriller/down.png', desc:'First Form · 4 vidas · CARNAGE.' },
+                { level:'20', name:'POWER BOSS II', type:'BOSS', img:'assets/images/enemies_thriller/powerBoss/down.png', desc:'Mais HP, mais velocidade e mais adds.' },
+                { level:'30', name:'POWER BOSS III', type:'BOSS', img:'assets/images/enemies_thriller/powerBoss/down.png', desc:'Pressão alta e summons mais frequentes.' },
+                { level:'40', name:'BLACK/YELLOW THRILLER', type:'BOSS', img:'assets/images/bosses/blackYellowThriller/down.png', desc:'7 vidas · Blackout Step · summons · forma intermédia.' },
+                { level:'50', name:'THRILLER BOSS FINAL', type:'FINAL BOSS', img:'assets/images/bosses/redThriller/down.png', desc:'10 vidas · Red 10–8 → Black/Yellow 7–5 → Dual 4–2 → Werewolf Rage 1.', cls:'final' }
+            ];
+            return [
+                { level:'10', name:'POWER BOSS', type:'BOSS', img:'assets/images/enemies/powerBoss/down.png', desc:'7 vidas · primeira grande parede.' },
+                { level:'20', name:'POWER BOSS II', type:'BOSS', img:'assets/images/enemies/powerBoss/down.png', desc:'Regressa mais resistente.' },
+                { level:'30', name:'POWER BOSS III', type:'BOSS', img:'assets/images/enemies/powerBoss/down.png', desc:'Mais pressão e hordas maiores.' },
+                { level:'40', name:'POWER BOSS IV', type:'BOSS', img:'assets/images/enemies/powerBoss/down.png', desc:'Último teste antes do final.' },
+                { level:'50', name:'LORD NOCTURNUS', type:'FINAL BOSS', img:'assets/images/enemies/nocturnus/down.png', desc:'Vampire Overlord · batalha final.', cls:'final' }
+            ];
+        }
+        renderBossBible() {
+            const mission=this.pendingMission;
+            this.$('bossBibleMission').textContent=mission==='thriller'?'THRILLER':'DESERTO';
+            this.$('bossBibleTitle').textContent=mission==='thriller'?'BOSS BIBLE · THRILLER':'BOSS BIBLE · DESERTO';
+            const host=this.$('bossBibleGrid');host.innerHTML='';
+            for(const b of this.bossBibleEntries(mission)){
+                const el=document.createElement('div');el.className=`boss-entry ${b.cls||''}`;
+                const assetEntry=Object.entries(MZV.ASSET_PATHS).find(([,path])=>path===b.img);
+                const imgSrc=assetEntry?MZV.assetUrl(assetEntry[0]):b.img;
+                el.innerHTML=`<span class="boss-level">NÍVEL ${b.level}</span><img src="${imgSrc}" alt="${b.name}"><b>${b.name}</b><small>${b.desc}</small><span class="boss-type">${b.type}</span>`;
+                host.appendChild(el);
+            }
+        }
+        nextBossInfo(mission, level) {
+            const entries=this.bossBibleEntries(mission).map(b=>({level:Number(b.level),name:b.name,type:b.type}));
+            return entries.find(b=>b.level>=level) || null;
+        }
+        levelMotivation(mission, level) {
+            const current=this.nextBossInfo(mission,level);
+            if(current && current.level===level){
+                if(current.type==='APARIÇÃO') return `${current.name} ESTÁ POR PERTO · NÃO BAIXES A GUARDA.`;
+                if(current.type==='FINAL BOSS') return `FINAL BOSS · CHEGASTE ATÉ AQUI. ACABA COM ISTO.`;
+                return `BOSS LEVEL · ${current.name} · MOSTRA O QUE VALES.`;
+            }
+            const next=this.bossBibleEntries(mission).map(b=>({level:Number(b.level),name:b.name})).find(b=>b.level>level);
+            if(!next) return 'NÃO PARES AGORA · SOBREVIVE.';
+            const d=next.level-level;
+            if(d===1) return `SÓ MAIS 1 NÍVEL · ${next.name} ESTÁ À ESPERA.`;
+            if(d<=3) return `AGUENTA · FALTAM ${d} NÍVEIS PARA ${next.name}.`;
+            const phrases=[`PRÓXIMO MARCO: NÍVEL ${next.level} · CONTINUA.`,`NÃO PARES AGORA · NÍVEL ${next.level} É O PRÓXIMO TESTE.`,`MAIS ${d} NÍVEIS · A NOITE AINDA NÃO ACABOU.`];
+            return phrases[level%phrases.length];
+        }
+        updateLevelBeacon(force=false) {
+            const s=this.state;if(!s.running&&!force)return;
+            if(!force&&this.lastBeaconLevel===s.level)return;
+            this.lastBeaconLevel=s.level;
+            const beacon=this.$('levelBeacon');beacon.classList.remove('hidden','level-up');void beacon.offsetWidth;beacon.classList.add('level-up');
+            this.$('levelBeaconNumber').textContent=String(s.level);
+            this.$('levelMotivation').textContent=this.levelMotivation(s.mission,s.level);
+            if(this.levelBeaconTimer) clearTimeout(this.levelBeaconTimer);
+            this.levelBeaconTimer=setTimeout(()=>beacon.classList.add('hidden'),3200);
+        }
         updateTwoSelection() {
             const ids = ['marcio', 'marco', 'dany'];
             for (const id of ids) {
@@ -3313,8 +4297,9 @@ var MZV;
             addEventListener('pointerdown', startMenuAudio);
             this.$('onePlayer').addEventListener('click', () => { startMenuAudio(); this.pendingMode = 'single'; this.showPanel('missionMenu'); });
             this.$('twoPlayers').addEventListener('click', () => { startMenuAudio(); this.pendingMode = 'two'; this.pendingP1 = 'marcio'; this.pendingP2 = 'marco'; this.updateTwoSelection(); this.showPanel('missionMenu'); });
-            this.$('mission_deserto').addEventListener('click', () => { this.pendingMission = 'deserto'; this.$('singleMissionLabel').textContent='DESERTO'; this.$('twoMissionLabel').textContent='DESERTO'; if (this.pendingMode === 'single') this.showPanel('singleCharacterMenu'); else { this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); } });
-            this.$('mission_thriller').addEventListener('click', () => { this.pendingMission = 'thriller'; this.$('singleMissionLabel').textContent='THRILLER'; this.$('twoMissionLabel').textContent='THRILLER'; if (this.pendingMode === 'single') this.showPanel('singleCharacterMenu'); else { this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); } });
+            this.$('mission_deserto').addEventListener('click', () => { this.pendingMission = 'deserto'; this.$('singleMissionLabel').textContent='DESERTO'; this.$('twoMissionLabel').textContent='DESERTO'; this.renderBossBible(); this.showPanel('bossBibleMenu'); });
+            this.$('mission_thriller').addEventListener('click', () => { this.pendingMission = 'thriller'; this.$('singleMissionLabel').textContent='THRILLER'; this.$('twoMissionLabel').textContent='THRILLER'; this.renderBossBible(); this.showPanel('bossBibleMenu'); });
+            this.$('bossBibleContinue').addEventListener('click', () => { if(this.pendingMode==='single') this.showPanel('singleCharacterMenu'); else { this.updateTwoSelection(); this.showPanel('twoCharacterMenu'); } });
             for (const id of ['marcio', 'marco', 'dany']) {
                 this.$(`single_${id}`).addEventListener('click', () => this.start('single', id, 'marco', this.pendingMission));
                 this.$(`p1_${id}`).addEventListener('click', () => { if (this.pendingP2 !== id) {
@@ -3336,7 +4321,6 @@ var MZV;
             this.$('settingsSave').addEventListener('click', () => this.saveSettings());
             this.$('settingsDefaults').addEventListener('click', () => { MZV.SETTINGS.reset(); this.syncSettingsForm(); this.$('settingsStatus').textContent = 'STANDARD RESTAURADO'; });
             this.$('rotateFullscreen').addEventListener('click', () => this.requestFullscreen(false));
-            this.$('rotateDismiss').addEventListener('click', () => this.$('rotateHint').classList.add('dismissed'));
             addEventListener('keydown', e => {
                 if (e.code === 'Escape' && !e.repeat) {
                     if (!this.$('settingsOverlay').classList.contains('hidden'))
@@ -3379,9 +4363,11 @@ var MZV;
             this.$('menu').classList.add('hidden');
             this.$('gameOver').classList.add('hidden');
             this.$('hud').classList.remove('hidden');
+            this.lastBeaconLevel=0; this.$('levelBeacon').classList.remove('hidden');
             document.documentElement.classList.add('game-playing');
             document.documentElement.classList.toggle('single-player', mode === 'single');
-            this.$('rotateHint').classList.remove('dismissed');
+            this.orientationPaused = false;
+            this.nextHudAt = 0;
             this.touch.setMode(mode);
             this.syncViewport();
             if (this.touch.enabled)
@@ -3389,6 +4375,7 @@ var MZV;
             this.music.start();
             this.audio.play('laugh', .70);
             this.startLevel();
+            this.$('rescueAlert')?.classList.remove('show');
             this.updateHud();
             this.last = performance.now();
             this.$('runtime-status').textContent = 'RUNNING';
@@ -3398,6 +4385,14 @@ var MZV;
             z.alive = false; this.state.enemies = []; }
         loop(t) {
             try {
+                const mobile = this.touch.enabled;
+                const targetFps = 60;
+                const minFrameMs = 1000 / targetFps;
+                if (mobile && this.lastRenderedFrame && t - this.lastRenderedFrame < minFrameMs - .6) {
+                    requestAnimationFrame(q => this.loop(q));
+                    return;
+                }
+                this.lastRenderedFrame = t;
                 const dt = Math.min(.033, (t - this.last) / 1000 || 0);
                 this.last = t;
                 if (this.state.running)
@@ -3417,6 +4412,7 @@ var MZV;
             const s = this.state;
             s.elapsed += dt;
             this.music.update();
+            this.carnage.update(dt);
             this.updateThrillerAtmosphere(dt);
             for (const p of s.players)
                 this.movement.updatePlayer(p, dt);
@@ -3425,6 +4421,7 @@ var MZV;
             this.enemyMotion.update(dt);
             this.loot.update(dt);
             this.revive.update();
+            this.rescue.update(dt);
             if (s.overdriveUntil > 0 && s.elapsed >= s.overdriveUntil)
                 s.overdriveUntil = 0;
             if (s.mode === 'single') {
@@ -3448,22 +4445,31 @@ var MZV;
                 this.audio.play('gameover', .6);
                 this.showGameOver(false);
             }
-            else if (!s.enemies.length && !s.victory && !this.horde.hasPendingLevelThreats() && !this.rage.blocksLevel()) {
+            else if (!s.enemies.length && !s.victory && !this.horde.hasPendingLevelThreats() && !this.rage.blocksLevel() && !(s.rescueNpc && s.rescueNpc.active)) {
                 s.level++;
                 this.startLevel();
             }
-            this.updateHud();
+            if (s.elapsed >= this.nextHudAt) {
+                this.nextHudAt = s.elapsed + .10;
+                this.updateHud();
+            }
         }
         updateThrillerAtmosphere(dt) {
             const s = this.state;
             if (s.mission !== 'thriller') { s.lightningAlpha = 0; s.scareUntil = 0; return; }
             if (s.lightningAlpha > 0) s.lightningAlpha = Math.max(0, s.lightningAlpha - dt * 2.25);
+            if (s.werewolfScareStart > 0 && s.elapsed >= s.werewolfScareStart && s.elapsed < s.werewolfScareUntil && s.werewolfScareSoundedLevel !== s.level) {
+                s.werewolfScareSoundedLevel = s.level; s.lightningAlpha = 1;
+                this.audio.playVariant('laugh', .92, MZV.rand(.88,.96));
+                this.notify('🐺 ELE ESTÁ A OBSERVAR-TE...');
+            }
             if (s.elapsed >= s.nextLightningAt) {
                 s.lightningAlpha = .30 + Math.random() * .34;
                 const bossPending = s.pendingBoss === 'powerBoss' || s.pendingBoss === 'nocturnus';
-                s.nextLightningAt = s.elapsed + MZV.rand(bossPending ? 5.5 : 10.5, bossPending ? 10 : 23);
+                if (s.carnageActive) s.nextLightningAt = s.elapsed + MZV.rand(3.2, 7.0);
+                else s.nextLightningAt = s.elapsed + MZV.rand(bossPending ? 5.5 : 10.5, bossPending ? 10 : 23);
             }
-            if (s.pendingBoss === 'powerBoss' || s.pendingBoss === 'nocturnus') {
+            if (s.pendingBoss === 'nocturnus') {
                 if (s.nextScareAt <= 0) s.nextScareAt = s.elapsed + 2.2;
                 if (s.elapsed >= s.nextScareAt) {
                     s.scareUntil = s.elapsed + 2.4;
@@ -3479,21 +4485,30 @@ var MZV;
             document.documentElement.classList.remove('game-playing');
             document.documentElement.classList.remove('single-player');
             this.touch.hide();
+            this.$('levelBeacon').classList.add('hidden');
             const box = this.$('gameOver');
             box.classList.remove('hidden');
             this.$('resultTitle').textContent = victory ? 'VITÓRIA' : 'GAME OVER';
-            this.$('resultText').textContent = victory ? `Lord Nocturnus foi derrotado · ${this.state.kills} kills · ${this.state.score.toLocaleString()} pontos.` : `Nível ${this.state.level} · ${this.state.kills} kills · ${this.state.score.toLocaleString()} pontos.`;
+            this.$('resultText').textContent = victory ? `${this.state.mission === 'thriller' ? 'Thriller Boss' : 'Lord Nocturnus'} foi derrotado · ${this.state.kills} kills · ${this.state.score.toLocaleString()} pontos.` : `Nível ${this.state.level} · ${this.state.kills} kills · ${this.state.score.toLocaleString()} pontos.`;
         }
         updateHud() {
             const s = this.state, p1 = s.players[0], p2 = s.players[1];
+            this.updateLevelBeacon();
+            const rescueAlert=this.$('rescueAlert');
+            if(!(s.rescueNpc&&s.rescueNpc.active)) rescueAlert.classList.remove('show');
+            else if(s.rescueAlertUntil>s.elapsed && !rescueAlert.classList.contains('show')){rescueAlert.classList.remove('show');void rescueAlert.offsetWidth;rescueAlert.classList.add('show');setTimeout(()=>rescueAlert.classList.remove('show'),2200);}
             const missionHud = this.$('mission'); if (missionHud) missionHud.textContent = s.mission === 'thriller' ? 'THRILLER' : 'DESERTO';
+            const rescueHud=this.$('rescue'); if(rescueHud){const n=s.rescueNpc;rescueHud.textContent=n&&n.active?`${Math.ceil(n.hp)}HP · ${Math.round(100*n.progress/n.required)}%`:'—';}
             this.$('level').textContent = String(s.level);
             this.$('kills').textContent = String(s.kills);
             this.$('score').textContent = s.score.toLocaleString();
             this.$('remaining').textContent = String(s.enemies.length);
             this.$('air').textContent = String(s.airstrikeCharges);
             this.$('overdrive').textContent = s.elapsed < s.overdriveUntil ? Math.ceil(s.overdriveUntil - s.elapsed) + 's' : '—';
-            this.$('rage').textContent = s.elapsed < s.rageUntil ? Math.ceil(s.rageUntil - s.elapsed) + 's' : '—';
+            this.$('rage').textContent = s.elapsed < s.rageUntil && s.elapsed >= s.rampageUntil ? Math.ceil(s.rageUntil - s.elapsed) + 's' : '—';
+            this.$('rampage').textContent = s.elapsed < s.rampageUntil ? Math.ceil(s.rampageUntil - s.elapsed) + 's' : '—';
+            this.$('extraLives').textContent = s.players.map(p=>`P${p.slot} ${p.extraLives||0}`).join(' · ');
+            const hudNext=this.$('hudNext'); if(hudNext) hudNext.textContent=this.levelMotivation(s.mission,s.level);
             this.$('combo').textContent = s.elapsed < s.rageUntil && s.combo > 0 ? '×' + s.combo : '—';
             this.$('reinforcement').textContent = s.reinforcement ? `${s.reinforcement.name} ${s.reinforcement.state === 'exiting' ? '↗' : 'AI'}` : '—';
             this.$('musicCue').textContent = `${s.musicCue} · ${Math.floor(s.musicTime / 60)}:${String(Math.floor(s.musicTime % 60)).padStart(2, '0')}`;

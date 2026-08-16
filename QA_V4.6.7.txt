@@ -1,0 +1,16 @@
+MENESES: ZOMBIES & VAMPIROS — QA V4.6.7
+
+Browser: Chromium headless, 1440x900
+Result: PASS
+
+Checks:
+- Game starts in Single Player / Thriller and remains RUNNING.
+- 4 helicopter rotor frames loaded successfully.
+- 8 Rescue NPC V2 visual states loaded successfully.
+- Rescue NPC spawned automatically under forced first-Carnage test condition.
+- Dense horde positioned to NPC's right; after 1.2s NPC moved ~170px left, confirming active flee steering.
+- Laugh audio cue triggered panic state immediately.
+- Laugh cue extended scaredUntil and triggered scream cooldown using grito.ogg.
+- Rescue complete changes NPC to relief state before disappearing.
+- Helicopter deployed and rendered with animated asset + muzzle flash.
+- Page errors: 0.
