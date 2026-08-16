@@ -94,6 +94,32 @@
     return originalHordeCue.call(this, cue);
   };
 
+  const originalCameraProfile = MZV.Renderer.prototype.cameraProfile;
+  const mobileZoom = (w,h) => MZV.clamp(Math.min(w / 1720, h / 760), 0.55, 0.72);
+  MZV.Renderer.prototype.cameraProfile = function() {
+    if (!this.mobileLayout()) return originalCameraProfile.call(this);
+    const w=this.canvas.clientWidth, h=this.canvas.clientHeight, zoom=mobileZoom(w,h);
+    return { zoom, focusX:w/2, focusY:h/2 };
+  };
+
+  const originalNearest = MZV.CombatSystem.prototype.nearest;
+  MZV.CombatSystem.prototype.nearest = function(p, range) {
+    if (!document.documentElement.classList.contains('touch-device')) return originalNearest.call(this,p,range);
+    const canvas=document.getElementById('game');
+    if(!canvas) return originalNearest.call(this,p,range);
+    const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight,zoom=mobileZoom(w,h),cam=this.s.camera||{x:0,y:0};
+    const maxX=cam.x+w/zoom,maxY=cam.y+h/zoom;
+    let best=null,d0=Infinity;
+    for(const z of this.s.enemies){
+      if(!z.alive)continue;
+      const r=Math.max(16,z.radius||20);
+      if(z.x+r<cam.x||z.x-r>maxX||z.y+r<cam.y||z.y-r>maxY)continue;
+      const d=Math.hypot(z.x-p.x,z.y-p.y);
+      if(d<d0&&d<=range){best=z;d0=d;}
+    }
+    return best;
+  };
+
   function installDifficultyMenu(app) {
     const card = document.querySelector('#menu .card');
     if (!card || document.getElementById('difficultyMenu')) return;
