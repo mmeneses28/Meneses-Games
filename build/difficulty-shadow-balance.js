@@ -27,14 +27,14 @@
       super(...args);
       const boss = !!args[4];
       const d = cfg();
-      const hpMul = boss ? d.bossHp : d.hp;
-      const dmgMul = boss ? d.bossDamage : d.damage;
-      this.maxHp *= hpMul;
-      this.hp = this.maxHp;
-      this.baseSpeed *= d.speed;
-      this.speed = this.baseSpeed;
-      this.damage *= dmgMul;
-      this._difficultyApplied = true;
+      if (!boss) {
+        this.maxHp *= d.hp;
+        this.hp = this.maxHp;
+        this.baseSpeed *= d.speed;
+        this.speed = this.baseSpeed;
+        this.damage *= d.damage;
+      }
+      this._difficultyApplied = !boss;
     }
   };
 
